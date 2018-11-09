@@ -1,0 +1,19 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+//Folosim o uniune pentru imparti spatiul in 2 bucati.
+union l_b_e //little/big endian
+{
+    short int x;
+    char c[2];  //ocupa fix 2 octeti => imi partitioneaza spatiul in 2.
+};
+
+int main()
+{
+    union l_b_e w;
+    w.x = 1;                            //cel mai simplu numar ce poate fi reprezentat.
+    printf("%d %d", w.c[0], w.c[1]);
+    //1 0 => Little
+    //0 1 => Big
+    return 0;
+}
