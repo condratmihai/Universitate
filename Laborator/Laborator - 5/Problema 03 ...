@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+union partitie
+{
+    int nr;
+    char v[4];
+};
+
+int main()
+{
+    int i;
+    union partitie x;
+    char *p = NULL;
+
+    scanf("%d", &x.nr);
+
+    p = x.nr;
+
+    for(i = 0; i < 4; i++)
+        x.v[i] = *(p + i);
+
+    for(i = 0; i < 4; i++)
+        printf("%d", x.v[i]);
+
+
+
+
+    return 0;
+}
