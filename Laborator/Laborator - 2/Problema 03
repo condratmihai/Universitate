@@ -1,0 +1,24 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+/*
+Laborator 2
+Problema 3
+Se citește un număr întreg n de la tastatură. Să se calculeze n*8, n/4 si n*10 folosind operatorii logici
+de deplasare la nivel de bit
+*/
+
+int main()
+{
+    int n;
+    int n8, n4, n10;
+    scanf("%d", &n);
+
+    n8 = (n<<3);
+    n4 = (n>>2);
+    n10 = (n<<3) + (n<<1); //10 scris ca 8 + 2
+    printf("%d", n10);
+
+
+    return 0;
+}
