@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+//Functie pentru citire matrice
+int** CitireMatrice (int n, int m)
+{
+    int **a;
+
+    a = (int**)malloc(n*sizeof(int*));
+
+    int i,j;
+
+    for(i=0;i<n;i++)
+    {
+        a[i] = (int*)malloc(m*sizeof(int));
+        for(j=0;j<m;j++)
+            scanf("%d", &a[i][j]);
+    }
+
+    return a;
+}
+
+int main()
+{
+
+    //Fara functii auxiliare
+    
+    int l, c;
+    int i, j;
+
+    scanf("%d%d", &l, &c);
+
+    int *v[l];
+    for(i = 0; i<l; i++)
+        v[i] = (int*)malloc(c*sizeof(int));
+
+    for(i = 0; i<l; i++)
+        for(j = 0; j<c; j++)
+            scanf("%d", &v[i][j]);
+
+    AfisareMatrice(&v, l, c);
+    for(i = 0; i<l; i++){
+        printf("\n");
+        for(j = 0; j<c; j++)
+            printf("%d", v[i][j]);
+    }
+
+
+    return 0;
+}
