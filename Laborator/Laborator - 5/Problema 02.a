@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+//Numarul este scris pe 2 octeti, deci folosim short int.
+//printf("%d",sizeof(short int)); => 2 bytes.
+
+union swap
+{
+    unsigned short int nr;
+    char c[2];
+};
+
+int main()
+{
+    int i;
+    char aux;
+
+    union swap s;
+    scanf("%d", &s.nr);
+
+    //Inversam cele doua jumatati,
+    //memoria fiind partitionata ce cele 2 elemente din char c[2].
+    aux = s.c[0];
+    s.c[0] = s.c[1];
+    s.c[1] = aux;
+
+    printf("%d", s.nr);
+
+    return 0;
+}
