@@ -1,0 +1,14 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+//Verificati daca n este de forma 2^k
+
+int main()
+{
+    int n;
+    scanf("%d", &n);
+
+    if((n&(n-1))==0) printf("%s", "Este putere a lui doi, sa moara Papua Noua Guinee daca nu.");
+    else printf("%s", "Nu este putere a lui doi, sa moara Mongolia daca e.");
+    return 0;
+}
