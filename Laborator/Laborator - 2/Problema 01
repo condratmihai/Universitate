@@ -1,0 +1,33 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+/*
+Laborator 2
+Problema 1
+Se dă ecuația de gradul al II-lea: ax^2 + bx + c = 0. Să se calculeze rădăcinile ecuației folosind ori de
+câte ori se poate operatorii de atribuire combinați.
+*/
+
+int main()
+{
+    //N-avem bani de "operatori combinati"
+    int a,b,c;
+    float rad1, rad2;
+    scanf("%d%d%d", &a, &b, &c);
+    int delta = b*b - 4*a*c;
+
+    if(delta>0)
+    {
+        rad1 = (-b + sqrt(delta))/(2*a);
+        rad2 = (-b - sqrt(delta))/(2*a);
+        printf("%f si %f", rad1, rad2);
+    }
+    else if (delta==0)
+    {
+        rad1 = (-b)/(2*a);
+        printf("%f", rad1);
+    }
+    else printf("Nu are radacini reale si mi-e lene sa fac un caz pentru cele complexe.");
+
+    return 0;
+}
