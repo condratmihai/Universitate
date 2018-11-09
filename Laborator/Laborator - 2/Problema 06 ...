@@ -1,0 +1,25 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+/*
+Laborator 2
+Problema 6
+Se citesc 2 numere întregi x și n unde n este între 0 si 15. Să se afișeze:
+numărul x în care seseteaza bitul n la valoarea 0 sau 1,
+numărul x în care se șterge bitul n,
+numărul x în care secomplementează bitul n.
+*/
+
+int main()
+{
+    int x, n;
+    scanf("%d%d", &x,&n);
+    //????????????
+    x = x>>n;
+    x = x&1;
+
+    printf("%d", x);
+
+
+    return 0;
+}
