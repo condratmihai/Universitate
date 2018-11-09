@@ -1,0 +1,25 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+//Scrierea lui n in baza 2
+
+int binar[32];
+
+int main()
+{
+    int n;
+    scanf("%d", &n);
+    int j,i = 32;
+
+    while(n)
+    {
+        binar[i] = n%2;
+        n/=2;
+        i--;
+    }
+    for(j=i+1;j<=32;j++)
+        printf("%d", binar[j]);
+
+
+    return 0;
+}
