@@ -1,0 +1,66 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct
+{
+    char adresa[101];
+    int suprafata;
+    char tip_locuinta[33];
+    short int nr_camere;
+
+    union info
+    {
+        short int garsoniera;
+        char apartament;
+        char casa[21];
+    }in;
+
+}locuinta;
+
+
+int main()
+{
+    int i;
+    int n;
+    int suprafata_max = -1;
+    scanf("%d", &n);
+
+    locuinta v[n];
+    for(i = 0; i < n; i++)
+    {
+
+    //Adresa
+        fflush(stdin);
+        fgets(v[i].adresa, 101, stdin);
+    //Suprafata
+        scanf("%d", &v[i].suprafata);
+    //Tip Locuinta
+        fflush(stdin);
+        fgets(v[i].tip_locuinta, 101, stdin);
+    //Nr. Camere
+        scanf("%d", &v[i].nr_camere);
+    //Identificator Specific
+        if(strcmp(v[i].tip_locuinta, "garsoniera\n") == 0)
+            {
+                scanf("%d", &v[i].in.garsoniera);
+
+                if(v[i].in.garsoniera == 1)
+                {
+                    if(v[i].suprafata > suprafata_max) suprafata_max = v[i].suprafata;
+                }
+            }
+        if(strcmp(v[i].tip_locuinta, "apartament\n") == 0)
+            scanf("%c", &v[i].in.apartament);
+        if(strcmp(v[i].tip_locuinta, "casa\n") == 0)
+        {
+            fflush(stdin);
+            fgets(v[i].tip_locuinta, 21, stdin);
+        }
+
+    }
+
+
+    printf("\n%d",suprafata_max);
+
+    return 0;
+}
