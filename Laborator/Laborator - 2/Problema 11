@@ -1,0 +1,25 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+//Care este numarul de biti nenuli din reprezentarea lui n
+
+
+int main()
+{
+    int n;
+    scanf("%d", &n);
+
+    int tmp = n;
+    int i = 0;
+
+    while(tmp != 0)
+    {
+        tmp = tmp&(tmp-1);
+        i++;
+    }
+
+    printf("%s%d","Numarul de biti nenuli din n este ", i);
+
+
+    return 0;
+}
