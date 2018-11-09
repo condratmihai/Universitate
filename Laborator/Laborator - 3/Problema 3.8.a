@@ -1,0 +1,59 @@
+#include <iostream>
+#include <string.h>
+using namespace std;
+
+//d)
+const int dacanumaieiestimort = 5;
+
+//a)
+struct participant
+{
+    int nr_legitimatie;
+    float nota_examen;
+    float nota_bac;
+    float medie;
+    char nume[100];
+    bool admis;
+};
+
+int main()
+{
+    int i;
+    int nr_participanti;
+    scanf("%d", &nr_participanti);
+    char prov[2];
+
+//b)
+    participant c[nr_participanti];
+    for(i = 0; i < nr_participanti; i++)
+    {
+        scanf("%d", &c[i].nr_legitimatie);
+
+        //La citirea numelui:
+        fgets(prov, 2, stdin);                  //Scapa de "Enter-ul" precedent
+        fgets(c[i].nume, 100, stdin);           //Citeste numele propriu-zis
+        c[i].nume[strlen(c[i].nume)-1] = '\0';  //Scapa de "Enter-ul" final
+
+        scanf("%f %f",
+              &c[i].nota_examen,
+              &c[i].nota_bac
+              );
+//c) & e)
+        c[i].medie = (4*c[i].nota_examen + c[i].nota_bac)/5;
+
+        if(c[i].medie >= dacanumaieiestimort) c[i].admis = true;
+        else c[i].admis = false;
+    }
+
+//CHECK-CHECK
+
+    printf("\n\n%d\n%s\n%f\n%f\n%f\n%d",
+           c[0].nr_legitimatie,
+           c[0].nume,
+           c[0].nota_examen,
+           c[0].nota_bac,
+           c[0].medie,
+           c[0].admis);
+
+    return 0;
+}
