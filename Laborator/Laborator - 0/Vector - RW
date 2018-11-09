@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void CitireVector1(int **v_aux, int n)
+{
+    int i;
+
+    *v_aux = (int*)malloc(n*sizeof(int));
+
+    for(i=0;i<n;i++)
+        scanf("%d", &((*v_aux)[i]));
+
+}
+
+int* CitireVector2(int n)
+{
+    int i;
+    int *v_aux;
+
+    v_aux = (int*)malloc(n*sizeof(int));
+
+    for(i=0;i<n;i++)
+        scanf("%d", &(v_aux[i]));
+
+    return v_aux;
+}
+
+void AfisareVector(int *v_aux, int n)
+{
+    int i;for(i = 0; i<n; i++)
+        scanf("%d", &v_aux[i]);
+
+    for(i=0;i<n;i++)
+        printf("%d\n", v_aux[i]);
+
+}
+
+int main()
+{
+    int *v = NULL;
+    int n;
+
+    scanf("%d", &n);
+    //CitireVector1(&v,n); //Metoda1
+    //v = CitireVector2(n); //Metoda2
+    AfisareVector(v,n);
+
+
+    return 0;
+}
