@@ -1,0 +1,23 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+/*
+Laborator 2
+Problema 2
+Se citesc trei numere întregi de la tastatură. Să se afișeze maximul dintre cele 3 numere folosind
+operatorul decizional.
+*/
+
+int main()
+{
+    int a,b,c;
+    scanf("%d%d%d", &a, &b, &c);
+
+    (a>b)?(1):(a=b);
+    (a>c)?(1):(a=c);
+
+    printf("%d", a);
+
+
+    return 0;
+}
