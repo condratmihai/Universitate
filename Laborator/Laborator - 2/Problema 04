@@ -1,0 +1,22 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+/*
+Laborator 2
+Problema 4
+Se citește un număr întreg de la tastatură. Să se determine dacă acesta este par sau impar folosind
+doar operatorii logici la nivel de biți
+*/
+
+int main()
+{
+    int n;
+    scanf("%d", &n);
+
+    n = n&1;
+
+    printf("%d", n);   //1 = impar, 0 = par
+
+
+    return 0;
+}
