@@ -1,0 +1,91 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+/*
+PROBLEMA 7:
+Folosind pointeri, să se citească de la tastură elementele unei matrice pătratice de dimensiune n
+(impar) și să se afiṣeze:
+a. elementul de la intersecţia diagonalelor;
+b. elementele de pe coloana k (k citit);
+c. elementele de pe linia k (k citit);
+d. elementele celor două diagonale.
+*/
+
+
+
+int main()
+{
+
+    int n;
+    scanf("%d", &n);
+    if(n%2==0) return 0;
+    int v[n][n];
+
+    int i,j;
+    int index = 1;
+
+/*
+    //Citire secventiala.
+    for(i = 0; i < n*n; i++)
+    {
+        //v[i][j] = index;
+
+        *(*v+i) = index;
+        index++;
+
+        //SAU, pentru citire: scanf("%d", *v + i);
+    }
+
+*/
+    //Citire cu adrese
+    for(i = 0; i < n; i++)
+        for(j = 0; j < n; j++)
+        {
+            //v[i][j] = index;
+
+            *(*(v+i)+j) = index;
+            index++;
+
+            //SAU, pentru citire: scanf("%d", *(v+i)+j);
+        }
+
+    for(i = 0; i < n; i++)
+        {
+            for(j = 0; j < n; j++) printf("%d ", *(*(v+i)+j));
+            printf("\n");
+        }
+
+
+
+
+    printf("\n\n\n");
+
+    int k, jum = n/2;
+    printf("Elementul de la intersectia diagonalelor este: %d.\n\n", *(*(v+jum) + jum));
+
+    printf("\n");
+
+    printf("Citeste coloana:");
+    scanf("%d", &k);
+    for(i = 0; i < n; i++)
+        printf("%d ", *(*(v+i)+k));
+
+    printf("\n\n");
+
+    printf("Citeste linia:");
+    scanf("%d", &k);
+    for(i = 0; i < n; i++)
+        printf("%d ", *(*(v+k)+i));
+
+    printf("\n\n\n");
+
+
+    printf("Elementele de pe diagonale sunt:\n");
+    for(i = 0; i < n; i++)
+        printf("%d ", *(*v + n*i +i));
+    printf("\n");
+    for(i = 0; i < n; i++)
+        printf("%d ", *(*v + (n-1)*(i+1)));
+
+    return 0;
+}
