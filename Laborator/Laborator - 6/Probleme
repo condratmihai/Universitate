@@ -1,0 +1,137 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <stdbool.h>
+
+
+int divizori (unsigned long long x)
+{
+    unsigned long long i;
+    int divizori_count = 0;
+
+    for(i = 2; i <= x/2; i++)
+        if(x%i==0) divizori_count++;
+
+    return divizori_count;
+}
+
+bool prim (unsigned long long x)
+{
+    int i;
+    if (x%2==0) return false;
+    for(i = 3; i <= sqrt(x); i+=2)
+        if(x%i==0) return false;
+
+    return true;
+}
+
+unsigned long long invers (unsigned long long nr)
+{
+    unsigned long long inver;
+    inver = 0;
+
+    while(nr)
+    {
+        inver = inver*10 + nr%10;
+        nr = nr/10;
+    }
+
+    return inver;
+}
+
+bool palindrom (unsigned long long x)
+{
+    return (invers(x) == x);
+}
+
+void fara_cifra (unsigned int n, int c)
+{
+    unsigned int nou = 0;
+
+    nou = ;
+
+    return invers(nou);
+}
+
+int main()
+{
+
+//File Stream
+
+    //Declarare read & write.
+    FILE *citire = fopen("date.in", "r");   //Deschinde fisierul "date.in".
+    FILE *scriere = fopen("date.out", "w"); //Creeaza fisierul "date.out".
+
+    //Verificare daca s-au citit bine.
+    if(citire == NULL)
+        printf("Fisierul .in nu poate fi deschis.");
+    if(scriere == NULL)
+        printf("Fisierul .out nu poate fi creat.");
+
+/*
+    //Citeste toate elementele din fisier si le scrie pe rand.
+    int element;
+    while(!feof(citire))
+    {
+        fscanf(citire, "%d", &element);
+        if(feof(citire)) break;
+        fprintf(scriere, "%d ", element);
+    }
+
+    //Functii de citire & scriere la nivel de caracter.
+    char caracter;
+    caracter = fgetc(citire); //Citeste codul ASCII al caracterului citit din fisierul "date.in".
+    fputc(caracter, scriere); //Adauga codul ASCII al lui "caracter" in fisierul "date.out".
+
+
+    //Functii de citire & scriere la nivel de linie.
+    char linie[100];
+    fgets(linie, 100, citire); //Citeste in stringul "linie" pana la '\n'. FGETS ADAUGA LA FINAL CARACTERUL NULL!
+    fputs(linie, scriere);     //Adauga stringul "linie" in fisierul "date.out".
+
+
+*/
+
+int x;
+scanf("%d", &x);
+printf("%d", invers(x));
+
+
+//Vectori
+
+/*
+    int i,j;
+    int n;
+
+    scanf("%d", &n);
+    int v[n][n];
+*/
+
+
+    //Citire (1) - interpretand cu adrese
+    /*
+    for(i = 0; i < n; i++)
+        for(j = 0; j < n; j++)
+            scanf("%d", *(v+i)+j);
+    */
+
+    //Citire (2) - citind secvential
+    /*
+    j = n*n;
+    for(i = 0; i < j; i++)
+        scanf("%d", *v + i);
+    */
+
+    //Scriere (1) - interpretand cu adrese si dereferentiind
+    /*
+    printf("\n");
+    for(i = 0; i < n; i++)
+    {
+        for(j = 0; j < n; j++)
+            printf("%d ", *(*(v+i)+j));
+        printf("\n");
+    }
+    */
+
+    return 0;
+}
