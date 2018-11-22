@@ -1,9 +1,56 @@
+-------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------
 CITIRE & SCRIERE:
+-------------------------------------------------------------------------------------------------------------------------------------
+General:
 
 "scanf()" returneaza nr. de caractere citite cu succes.
 "printf()" returneaza nr. de caractere continute de ceea ce s-a citit.
 
+-------------------------------------------------------------------------------------------------------------------------------------
+Şiruri de caractere:
 
-//fin.get(propozitie, 100);
-      echivalent cu
-//fgets(propozitie, 100, fin); propozitie[strlen(propozitie)-1] = NULL; //Deoarece ia si ultimul caracter: ENTER sau ENDL
+      //fin.get(propozitie, 100);
+             echivalent cu
+      //fgets(propozitie, 100, fin); propozitie[strlen(propozitie)-1] = NULL; //Deoarece ia si ultimul caracter: ENTER sau ENDL.
+      
+-------------------------------------------------------------------------------------------------------------------------------------
+File Stream:
+
+    //Declarare read & write.
+    FILE *citire = fopen("date.in", "r");   //Deschinde fisierul "date.in".
+    FILE *scriere = fopen("date.out", "w"); //Creeaza fisierul "date.out".
+
+    //Verificare daca s-au citit bine.
+    if(citire == NULL)
+        printf("Fisierul .in nu poate fi deschis.");
+    if(scriere == NULL)
+        printf("Fisierul .out nu poate fi creat.");
+
+
+    //Citeste toate elementele din fisier si le scrie pe rand.
+    int element;
+    while(!feof(citire))
+    {
+        fscanf(citire, "%d", &element);
+        if(feof(citire)) break;
+        fprintf(scriere, "%d ", element);
+    }
+
+    //Functii de citire & scriere la nivel de caracter.
+    char caracter;
+    caracter = fgetc(citire); //Citeste codul ASCII al caracterului citit din fisierul "date.in".
+    fputc(caracter, scriere); //Adauga codul ASCII al lui "caracter" in fisierul "date.out".
+
+
+    //Functii de citire & scriere la nivel de linie.
+    char linie[100];
+    fgets(linie, 100, citire); //Citeste in stringul "linie" pana la '\n'. FGETS ADAUGA LA FINAL CARACTERUL NULL!
+    fputs(linie, scriere);     //Adauga stringul "linie" in fisierul "date.out".
+
+-------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------
+
+Altceva, n-am idee.`
