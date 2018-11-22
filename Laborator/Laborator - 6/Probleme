@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdbool.h>
 
-
+//1.a.
 int divizori (unsigned long long x)
 {
     unsigned long long i;
@@ -15,6 +15,7 @@ int divizori (unsigned long long x)
     return divizori_count;
 }
 
+//1.b.
 bool prim (unsigned long long x)
 {
     int i;
@@ -39,18 +40,115 @@ unsigned long long invers (unsigned long long nr)
     return inver;
 }
 
+//2.
 bool palindrom (unsigned long long x)
 {
     return (invers(x) == x);
 }
 
+//3.
 void fara_cifra (unsigned int n, int c)
 {
-    unsigned int nou = 0;
+   // unsigned int nou = 0;
 
-    nou = ;
 
-    return invers(nou);
+    return;
+}
+
+//4.a.
+int* cifre (int *c, unsigned long long n)
+{
+    int i;
+    c = (int*)malloc(10*sizeof(int));
+
+    for (i = 0; i < 10; i++) *(c+i) = 0;
+
+    int rest;
+    while(n!=0)
+    {
+        rest = n%10;
+        *(c+rest)+=1;
+        n/=10;
+    }
+
+    return c;
+
+}
+
+//4.b.
+int minim (unsigned long long n)
+{
+    unsigned long long min;
+
+    //
+
+    return min;
+}
+
+//5.a.
+void citire_vector(int *v, int n)
+{
+    int i;
+
+    for(i = 0; i < n; i++)
+    {
+        scanf("%d", &v[i]);
+    }
+
+}
+
+//5.a.
+void afisare_vector(int *v, int n)
+{
+    int i;
+
+    for(i = 0; i < n; i++)
+    {
+        printf("%d ", v[i]);
+    }
+
+}
+
+//5.b.
+int frecventa (int v[], int n, int x, int i, int j)
+{
+    int parcurgere;
+    int count = 0;
+
+    for (parcurgere = i; parcurgere <= j; parcurgere++ )
+    {
+        if(v[parcurgere] == x) count++;
+    }
+
+    return count;
+}
+
+//5.c.
+void distincte (int v[], int n)
+{
+    //
+}
+
+//6.
+void max_sir(FILE *f, int *max, int *cate)
+{
+
+    int actual;
+    *max = *cate = 0;
+
+    while(!feof(f))
+    {
+        fscanf(f,"%d", &actual);
+        if(feof(f)) break;
+
+        if(actual == *max) (*cate)++;
+        if(actual > *max)
+        {
+            *max = actual;
+            *cate = 1;
+        }
+    }
+
 }
 
 int main()
@@ -69,69 +167,14 @@ int main()
         printf("Fisierul .out nu poate fi creat.");
 
 /*
-    //Citeste toate elementele din fisier si le scrie pe rand.
-    int element;
-    while(!feof(citire))
-    {
-        fscanf(citire, "%d", &element);
-        if(feof(citire)) break;
-        fprintf(scriere, "%d ", element);
-    }
-
-    //Functii de citire & scriere la nivel de caracter.
-    char caracter;
-    caracter = fgetc(citire); //Citeste codul ASCII al caracterului citit din fisierul "date.in".
-    fputc(caracter, scriere); //Adauga codul ASCII al lui "caracter" in fisierul "date.out".
-
-
-    //Functii de citire & scriere la nivel de linie.
-    char linie[100];
-    fgets(linie, 100, citire); //Citeste in stringul "linie" pana la '\n'. FGETS ADAUGA LA FINAL CARACTERUL NULL!
-    fputs(linie, scriere);     //Adauga stringul "linie" in fisierul "date.out".
-
-
-*/
-
-int x;
-scanf("%d", &x);
-printf("%d", invers(x));
-
-
-//Vectori
-
-/*
-    int i,j;
-    int n;
-
-    scanf("%d", &n);
-    int v[n][n];
+    int x;
+    int *p = NULL;
+    scanf("%d", &x);
+    int v[x];
 */
 
 
-    //Citire (1) - interpretand cu adrese
-    /*
-    for(i = 0; i < n; i++)
-        for(j = 0; j < n; j++)
-            scanf("%d", *(v+i)+j);
-    */
 
-    //Citire (2) - citind secvential
-    /*
-    j = n*n;
-    for(i = 0; i < j; i++)
-        scanf("%d", *v + i);
-    */
-
-    //Scriere (1) - interpretand cu adrese si dereferentiind
-    /*
-    printf("\n");
-    for(i = 0; i < n; i++)
-    {
-        for(j = 0; j < n; j++)
-            printf("%d ", *(*(v+i)+j));
-        printf("\n");
-    }
-    */
 
     return 0;
 }
