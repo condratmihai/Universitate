@@ -1,2 +1,9 @@
+CITIRE & SCRIERE:
+
 "scanf()" returneaza nr. de caractere citite cu succes.
 "printf()" returneaza nr. de caractere continute de ceea ce s-a citit.
+
+
+//fin.get(propozitie, 100);
+      echivalent cu
+//fgets(propozitie, 100, fin); propozitie[strlen(propozitie)-1] = NULL; //Deoarece ia si ultimul caracter: ENTER sau ENDL
