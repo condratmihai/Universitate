@@ -1,0 +1,91 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int* fillVector (int *p, int dim)
+{
+    int i;
+    int count = 1;
+
+    p = (int*)malloc(dim*sizeof(int));
+
+    for(i = 0; i < dim; i++)
+    {
+        *(p+i) = count; //p[i] = count;
+        count++;
+
+    }
+
+    return p;
+}
+
+void writeVector (int *p, int dim)
+{
+    int i;
+
+    for(i = 0; i < dim; i++) printf("%d ", *(p+i));
+}
+
+int** fillMatrix (int** p, int l, int c)
+{
+    int i,j;
+    int count = 1;
+
+    p = (int**)malloc(l*sizeof(int*));
+
+    for(i = 0; i < l; i++)
+    {
+        *(p+i) = (int*)malloc(c*sizeof(int)); //p[i] = (int*)malloc(c*sizeof(int));
+        for(j = 0; j < c; j++)
+            {
+                *(*(p+i)+j) = count; //p[i][j] = count;
+                count++;
+            }
+    }
+
+    return p;
+}
+
+void writeMatrix(int **p, int l, int c)
+{
+    int i,j;
+
+    for(i = 0; i < l; i++)
+    {
+        for(j = 0; j < c; j++)
+                printf("%d ", p[i][j]); //printf("%d ", *(*(p+i)+j));
+
+        printf("\n");
+    }
+}
+
+int main()
+{
+
+//File Stream
+
+    //Declarare read & write.
+    FILE *citire = fopen("date.in", "r");   //Deschinde fisierul "date.in".
+    FILE *scriere = fopen("date.out", "w"); //Creeaza fisierul "date.out".
+
+    //Verificare daca s-au citit bine.
+    if(citire == NULL)
+        printf("Fisierul .in nu poate fi deschis.");
+    if(scriere == NULL)
+        printf("Fisierul .out nu poate fi creat.");
+
+
+    int dim = 5;
+    int l = 3, c = 3;
+    int *p = NULL;
+    int **pp = NULL;
+
+    p = fillVector(p,dim);
+    writeVector(p,dim);
+
+    printf("\n\n\n");
+
+    pp = fillMatrix(pp,l,c);
+    writeMatrix(pp,l,c);
+
+    return 0;
+}
