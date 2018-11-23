@@ -1,0 +1,155 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+//1.a.
+int aparitii (char *s, char c)
+{
+    int ap = 0;
+
+    char *p = NULL;
+    p = strchr(s, c);
+
+    while(p!=NULL)
+    {
+        ap++;
+        printf("%d ", p-s+1);
+        p = strchr(p+1, c);
+
+    }
+
+    return ap;
+
+}
+
+//1.b.
+int aparitii2 (char *nume_fisier)
+{
+    FILE *fin = fopen(nume_fisier, "r");
+
+    char s[101];
+    char c;
+
+    fflush(fin);
+    fgets(s, 101, fin);
+    s[strlen(s)-1] = '\0';
+    fscanf(fin,"%c", &c);
+
+    int ap = 0;
+
+    char *p = NULL;
+    p = strchr(s, c);
+
+    while(p!=NULL)
+    {
+        ap++;
+        printf("%d ", p-s+1);
+        p = strchr(p+1, c);
+
+    }
+
+    return ap;
+}
+
+//2. ???
+int nr_cuvinte(char *nume_fisier)
+{
+    int count = 0;
+    int lung;
+    FILE *fin = fopen(nume_fisier, "r");
+    if(fin == NULL) printf("you done goofed");
+
+    char sir[101];
+
+    while(count<3)
+    {
+        fflush(fin);
+        fgets(sir, 101, fin);
+        //if(feof(fin)) break;
+        lung = strlen(sir);
+        if(lung > 0) sir[lung-1] = '\0';
+
+        //printf("%d\n", aparitii(sir,' '));
+
+        count++;
+    }
+
+    return count;
+}
+
+//3.
+void eliminare(char *s, char c)
+{
+    char *p = NULL;
+    p = strchr(s,c);
+
+    while(p)
+    {
+        s[p-s] = '\0';
+        strcpy(p, p+1);
+        p = strchr(s, c);
+
+    }
+
+    printf("%s", s);
+}
+
+//4.
+struct elevi
+{
+    char nume[31];
+    char clasa[11];
+    float nota;
+};
+
+int main()
+{
+    //char sir[101];
+    //fgets(sir, 101, stdin);
+    //sir[strlen(sir)-1] = '\0';
+
+
+    //REZOLVARE 4.
+    FILE *pin = fopen("premiere.in", "r");
+    FILE *pout = fopen("premiere.out", "w");
+
+    struct elevi el[10];
+    int nrel = 0;
+    int i = nrel;
+    //3 elevi in exemplu, na...
+    while(nrel<3)
+    {
+        fflush(pin);
+        fgets(el[i].nume, 31, pin);
+        el[i].nume[strlen(el[i].nume)-1] = '\0';
+
+        fflush(pin);
+        fgets(el[i].clasa, 31, pin);
+        el[i].clasa[strlen(el[i].clasa)-1] = '\0';
+
+        fscanf(pin, "%f", &el[i].nota);
+
+        nrel++;
+    }
+
+    //Sortare pe componenta el[i].nota;
+
+    for(i = 0; i < nrel; i++)
+    {
+        fputs(el[i].nume, pout);
+        fprintf(pout, "\n");
+
+        fputs(el[i].clasa, pout);
+        fprintf(pout, "\n");
+
+        fprintf(pout, "%f", el[i].nota);
+        fprintf(pout, "\n");
+
+        fprintf(pout, "\n");
+
+    }
+
+
+
+    return 0;
+}
