@@ -1,0 +1,109 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+
+void fill (int *p, int n)
+{
+    FILE *fout = fopen("date.out", "w");
+
+    int i,j;
+    int def = 1;
+    int citit;
+    int v[n][n];
+
+    //for (i = 0; i < ; i++)
+
+
+    for (i = 0; i < n; i++)
+    {
+         for (j = 0; j < n; j++)
+                printf("%d ", v[i][j]);
+         printf("\n");
+    }
+
+    return;
+}
+
+
+struct Complex
+{
+    int real;
+    int imag;
+};
+
+struct Complex sumaComplex (struct Complex x,struct Complex y)
+{
+    struct Complex suma;
+
+    suma.real = x.real + y.real;
+    suma.imag = x.imag + y.imag;
+
+    return suma;
+
+}
+
+struct Complex prodComplex (struct Complex x, struct Complex y)
+{
+    struct Complex prod;
+
+    prod.real = x.real*y.real - x.imag*y.imag;
+    prod.imag = x.real*y.imag - y.real*x.imag;
+
+    return prod;
+}
+
+struct Complex rezultat(struct Complex (*operatie)(struct Complex, struct Complex), int k)
+{
+    int i,j;
+    struct Complex total;
+    struct Complex actual;
+    //total.real = total.imag = 1;
+
+    //if((*operatie)(total, total).real == 2) total.real = total.imag = 0;
+
+        for(i = 1; i <= k; i++)
+            for(j = 1; j <= k; j++)
+                {
+                    actual.real = i;
+                    actual.imag = j;
+
+                    total = (*operatie)(total,actual);
+                }
+
+    return total;
+
+}
+
+int main()
+{
+    //struct Complex x, y;
+
+
+    FILE *fin = fopen("date.in", "r");
+    if(fin == NULL) printf("you done goofed");
+
+    int i, n, count = 0;
+    fscanf(fin, "%d", &n);
+    int *p = NULL;
+    int v[n*n];
+
+    i = 0;
+    while(1)
+    {
+        fscanf(fin, "%d", &v[i]);
+        if(feof(fin)) break;
+        i++;
+    }
+
+    count = i;
+    int arr[i+1];
+    for(i=0;i<count;i++) arr[i] = v[i];
+    arr[count] = -1;
+
+
+    p = v;
+
+    //fill(p,n);
+    return 0;
+}
