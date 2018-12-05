@@ -1,0 +1,138 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+
+//Sub. 1
+unsigned int putere_a (unsigned int n)
+{
+    int count = 0;
+
+    while(n)
+    {
+        n = n>>1;
+        count++;
+    }
+
+   return 1<<(count-1);
+
+}
+unsigned int putere_b (unsigned int n)
+{
+   int ptr = 1;
+
+   while(n >= ptr)
+   {
+       ptr = ptr * 2;
+   }
+
+    return ptr/2;
+
+}
+
+//Sub. 2
+void invers (int *n)
+{
+    int aux = *n;
+
+    int inv = 0;
+
+    while(aux)
+    {
+        inv = inv*10 + aux%10;
+        aux/=10;
+    }
+
+    *n = inv;
+}
+
+//Sub. 3
+typedef struct Produs
+{
+    short unsigned cod;
+    char nume[16];
+    float pret;
+    _Bool promo;
+}Produs;
+
+void afisare (Produs *v, int n, char *s)
+{
+    FILE *wr = fopen (s, "w");
+
+    int i;
+    for(i = 0; i < n; i++)
+    {
+        fprintf(wr,"%hd %s %f %d\n", v[i].cod, v[i].nume, v[i].pret, v[i].promo);
+    }
+}
+
+int main()
+{
+/*
+    //Sub.1
+    printf("Cea mai mica putere a lui 2, comparativ cu 15, este %d.\n\n", putere_b(15));
+*/
+/*
+    //Sub.2
+    FILE *nr = fopen("numere.txt", "r+");
+
+    int n;
+    fscanf(nr, "%d", &n);
+    int a[n][n];
+
+    int i = 0;
+    int j;
+    int limit = n*n;
+
+    int elem, elem_inv;
+    while(!feof(nr))
+    {
+        fscanf(nr, "%d", &elem);
+        if(feof(nr)) break;
+
+        elem_inv = elem;
+        invers(&elem_inv);
+
+        if(elem == elem_inv)
+        {
+            *(*a+i) = elem;
+            i++;
+            if(i == limit) break;
+        }
+    }
+
+    if(i < limit)
+    {
+        int nat = 1;;
+        for(j = i; j <= limit; j++)
+        {
+            *(*a+j) = nat*nat;
+            nat++;
+        }
+    }
+
+
+    fprintf(nr, "\n");
+    for(i = 0; i < n; i++)
+    {
+        for(j = 0; j < n; j++) fprintf(nr, "%d ", a[i][j]);
+        fprintf(nr, "\n");
+    }
+*/
+/*
+   //Sub. 3
+   FILE *pr = fopen("produse.in", "r");
+   int n,i;
+   fscanf(pr, "%d", &n);
+   Produs p[n];
+
+   for(i = 0; i < n; i++)
+   {
+        fscanf(pr,"%hd %s %f %d", &p[i].cod, &p[i].nume, &p[i].pret, &p[i].promo);
+   }
+
+   afisare(p, n, "produse.out");
+*/
+    return 0;
+}
+
