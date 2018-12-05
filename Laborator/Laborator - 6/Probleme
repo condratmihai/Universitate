@@ -4,15 +4,36 @@
 #include <stdbool.h>
 
 //1.a.
-int divizori (unsigned long long x)
+int nr_divizori(int n)
 {
-    unsigned long long i;
-    int divizori_count = 0;
+    int nr = 2;
+    int i;
+    int radical = sqrt(n);
 
-    for(i = 2; i <= x/2; i++)
-        if(x%i==0) divizori_count++;
+    for(i = 2; i <= radical; i++)
+    {
+        if(n%i==0) nr+=2;
+    }
 
-    return divizori_count;
+    if(radical == sqrt(n)) nr--;
+
+    return nr;
+}
+
+int suma_divizori(int n)
+{
+    int suma = 1+n;
+    int i;
+    int radical = sqrt(n);
+
+    for(i = 2; i <= radical; i++)
+    {
+        if(n%i==0) suma = suma + i + n/i;
+    }
+
+    if(radical == sqrt(n)) suma = suma - radical;
+
+    return suma;
 }
 
 //1.b.
