@@ -1,0 +1,105 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+//Sub. 1 şi Sub. 2 se bazează pe faptul că:
+// x xor x = 0
+// x xor 0 = x
+
+//Sub. 1
+void swap (int *x, int *y)
+{
+    *x = *x ^ *y;
+    *y = *x ^ *y;
+    *x = *x ^ *y;
+}
+
+//Sub. 2
+int bit_swap (int n, int i, int j)
+{
+    //Mută fiecare bit pe poziţia 0 şi îl compară cu 1 pentru a vedea ce valoare are.
+    int bit1 = (n>>i)&1;
+    int bit2 = (n>>j)&1;
+
+    if(bit1 == bit2) return n;
+
+    //Stabileşte care este "complementul" numărului n.
+    int bit = bit1^bit2;
+    bit = (bit<<i)|(bit<<j);
+
+    return (n^bit);
+}
+
+//Sub. 3
+int broscuta (int n, int x, int y)
+{
+    if (y>=x)
+    {
+        printf("haubau, nu-ţi mai iese broasca din fântână.");
+        return -1;
+    }
+
+    int nr = n/(x-y);
+    if (n%nr == 0) return nr;
+    return nr+1;
+
+}
+
+//Sub. 4
+void brad_shukar(int n)
+{
+    //Poţi face un brad şukar din $$$ doar dacă poţi face o construcţie ca în imagine.
+    //Se poate observa faptul că numărul dolarilor de pe fiecare rând este egal cu numărul rândului.
+    //Deci, nr_dolari = 1 + 2 + 3 + ... x = x(x+1)/2
+    //Construcţia poate fi realizată doar dacă există un nr. natural x cu prop x(x+1)/2 = n
+    int delta = 1 + 8*n;
+    float rad = (sqrt(delta)-1)/2;
+
+    if(rad == (int)rad) printf("DA");
+    else printf("NU");
+}
+
+//Sub. 5 a)
+int anagrama (char *s1, char *s2)
+{
+    char *p = NULL;
+    int i, lung;
+
+    lung = strlen(s1);
+    if (lung != strlen(s2)) return 0;
+
+    p = strchr(s1,s2[0]);
+    for(i = 0; i < lung; i++)
+    {
+        if(p)
+        {
+            strcpy(p,p+1);
+            strcpy(s2,s2+1);
+            p = strchr(s1,s2[0]);
+        }
+        else return 0;
+    }
+
+    return 1;
+}
+
+//Sub. 5 b)
+void anagrama_subsir (char *s1, char *s2)
+{
+    //Anagramă: acelasi numar de litere?
+}
+
+//Sub. 6
+long long punctaj (int n, int m, int a[n][m], int x, int y, int p1, int p2, int k)
+{
+    long long punct;
+    //
+    return punct;
+}
+
+int main()
+{
+
+    return 0;
+}
