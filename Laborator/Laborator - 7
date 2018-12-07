@@ -100,7 +100,16 @@ struct elevi
     char nume[31];
     char clasa[11];
     float nota;
-};
+}Elev;
+
+int compare (const void* a, const void* b)
+{
+    Elev *e1 = (Elev*)a;
+    Elev *e2 = (Elev*)b;
+
+    if((*e1).media == (*e2).media)
+        return strcmp((*e1).nume, (*e2).nume);
+}
 
 int main()
 {
@@ -113,7 +122,7 @@ int main()
     FILE *pin = fopen("premiere.in", "r");
     FILE *pout = fopen("premiere.out", "w");
 
-    struct elevi el[10];
+    Elevi e[10];
     int nrel = 0;
     int i = nrel;
     //3 elevi in exemplu, na...
@@ -132,7 +141,9 @@ int main()
         nrel++;
     }
 
-    //Sortare pe componenta el[i].nota;
+    //Sortare pe componenta e[i].nota;
+    qsort(e, nrel, sizeof(elev), comparare);
+    
 
     for(i = 0; i < nrel; i++)
     {
