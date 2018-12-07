@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct
+{
+    char nume[101];
+    float nota;
+}Elev;
+
+int compare (const void* a, const void* b)
+{
+    Elev *e1 = (Elev*)a;
+    Elev *e2 = (Elev*)b;
+
+    if((*e1).nota == (*e2).nota)
+        return strcmp((*e1).nume, (*e2).nume);
+}
+
+int main()
+{
+    FILE *pin = fopen("premiere.in", "r");
+    FILE *pout = fopen("premiere.out", "w");
+
+    Elev el[3];
+    int nrel = 3;
+    int i = 0;
+
+    while(nrel!=i)
+    {
+        fflush(pin);
+        fgets(el[i].nume, 31, pin);
+        el[i].nume[strlen(el[i].nume)-1] = '\0';
+
+        /*
+        fflush(pin);
+        fgets(el[i].clasa, 31, pin);
+        el[i].clasa[strlen(el[i].clasa)-1] = '\0';
+        */
+
+        fscanf(pin, "%f", &el[i].nota);
+
+        i++;
+    }
+
+    //Sortare pe componenta e[i].nota;
+    //qsort(el, nrel, sizeof(Elev), compare);
+
+
+    for(i = 0; i < nrel; i++)
+    {
+        //fputs(el[i].nume, pout);
+        fprintf(pout,el[i].nume, "\n");
+        fprintf(pout, "\n");
+
+        /*
+        fputs(el[i].clasa, pout);
+        fprintf(pout, "\n");
+        */
+
+        fprintf(pout, "%f", el[i].nota);
+        fprintf(pout, "\n");
+
+        fprintf(pout, "\n");
+
+    }
+
+
+
+
+    return 0;
+}
