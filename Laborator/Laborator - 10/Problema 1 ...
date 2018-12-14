@@ -1,0 +1,121 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+//a)
+typedef struct
+{
+    char ISBN[18];
+    float pret;
+    short int nr_exemplare;
+
+}carte;
+
+//b)
+bool verificare (carte x)
+{
+    if (strlen(x.ISBN) != 17)
+        return false;
+
+    int suma = 0;
+    int mod;
+    int count = 0;
+
+    int i;
+    for(i = 0; i < 16; i++)
+    {
+        char c = x.ISBN[i];
+        if(c == '-') continue;
+
+        int cifra = (int)c - 48;
+
+        count++;
+        (count&1)?(mod = 1):(mod = 3);
+
+        suma = suma + cifra*mod;
+    }
+
+    suma = suma%10;
+    suma = 10 - suma;
+    int ultima = (int)x.ISBN[16] - 48;
+
+    if(suma == ultima)
+        return true;
+    return false;
+
+}
+
+//c)
+void citire (carte *c, carte *g, int *i_corect, int *i_gresit)
+{
+    FILE *read = fopen ("carte.in", "r");
+
+    carte x;
+    int index_corect, index_gresit;
+    index_corect = index_gresit = 0;
+
+    while(!feof(read))
+    {
+        fscanf(read, "%s", x.ISBN);
+        fscanf(read, "%f", x.pret);
+        fscanf(read, "%hd", x.nr_exemplare);
+
+        if(feof(read)) break;
+
+        if(verificare(x) == true)
+        {
+            c[index_corect] = x;
+            index_corect++;
+
+            c = (carte*)realloc(c, sizeof(carte)*(index_corect+1));
+        }
+        else
+        {
+            g[index_gresit] = x;
+            index_gresit++;
+
+            g = (carte*)realloc(g, sizeof(carte)*(index_gresit+1));
+        }
+
+    }
+
+    *i_corect = index_corect;
+    *i_gresit = index_gresit;
+
+    int i,j;
+    
+    for(i = 0; i < index_corect; i++)
+        printf("%s\n", c[i].ISBN);
+
+    printf("\n\n\n");
+
+    for(j = 0; j < index_gresit; j++)
+        printf("%s", c[j].ISBN);
+
+}
+
+
+int main()
+{
+    carte *c = (carte*)malloc(sizeof(carte));
+    carte *g = (carte*)malloc(sizeof(carte));
+
+    int i, j;
+    int i_corect, i_gresit;
+
+    citire(c, g, &i_corect, &i_gresit);
+/*
+    for(i = 0; i < i_corect; i++)
+        printf("%s\n", c[i].ISBN);
+
+    printf("\n\n\n");
+
+    for(j = 0; j < i_gresit; j++)
+        printf("%s", c[j].ISBN);
+*/
+    return 0;
+}
+
+
+//TREBUIE FACUT PRIN POINTERI DUBLI
