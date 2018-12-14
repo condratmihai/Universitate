@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    //Matrice 3x3
+    int n = 3;
+    int i,j;
+
+    //Valoarea initiala pentru fill
+    int count = 1;
+
+    //Matrice inferior triunghiulara
+    int **inf;
+
+    inf = (int**)malloc(n*sizeof(int*));
+
+    for(i = 0; i < n; i++)
+    {
+        inf[i] = (int*)malloc((i+1)*(sizeof(int)));
+    }
+
+    for(i = 0; i < n; i++)
+        for(j = 0; j <= i; j++)
+    {
+        inf[i][j] = count;
+        count++;
+    }
+
+    for(i = 0; i < n; i++)
+    {
+        for(j = 0; j <= i; j++)
+            printf("%d ", inf[i][j]);
+        printf("\n");
+    }
+
+    printf("\n\n\n");
+
+    //Matrice superior triunghiulara
+    int **sup;
+
+    sup = (int**)malloc(n*sizeof(int*));
+
+    for(i = 0; i < n; i++)
+    {
+        sup[i] = (int*)malloc((i+1)*(sizeof(int)));
+    }
+//Trebuie citita ca sup, nu ca inf!
+    for(i = 0; i < n; i++)
+        for(j = 0; j <= i; j++)
+    {
+        sup[i][j] = count;
+        count++;
+    }
+
+    for(i = 0; i < n; i++)
+    {
+        for(j = 0; j <= i; j++)
+            printf("%d ", sup[i][j]);
+        printf("\n");
+    }
+
+
+    return 0;
+}
+
+
