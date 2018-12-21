@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+int main()
+{
+    char s1[21], s2[21];
+    scanf("%s %s", s1, s2);
+
+    char first = s1[0];
+    short int lungime = strlen(s1);
+
+    FILE *rw = fopen("text.txt", "r+");
+
+    char actual;
+
+    while(!feof(rw))
+    {
+        //fread(&actual, sizeof(char), 1, rw);
+        fscanf(rw, "%c", &actual);
+        if(feof(rw)) break;
+
+        short int conditie = 1;
+        short int i;
+
+        int pozitie_actuala = ftell(rw);
+
+        if (actual == first)
+        {
+            for(i = 1; i < lungime; i++)
+            {
+                fscanf(rw, "%c", &actual);
+                if(feof(rw)) break;
+
+                if (actual != s2[i])
+                {
+                    conditie = 0;
+                    break;
+                }
+            }
+        }
+
+        fseek(rw, 0, pozitie_actuala);
+
+        if(conditie)
+        {
+            for(i = 1; i < lungime; i++)
+            {
+
+            }
+        }
+
+
+
+
+
+
+    }
+
+    return 0;
+}
+
+// C[i][j] += A[i][k]* B[k][j-k];
