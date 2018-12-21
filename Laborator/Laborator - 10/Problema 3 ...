@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 int main()
 {
     //Matrice 3x3
@@ -43,11 +44,11 @@ int main()
 
     for(i = 0; i < n; i++)
     {
-        sup[i] = (int*)malloc((i+1)*(sizeof(int)));
+        sup[i] = (int*)malloc((n-i)*(sizeof(int)));
     }
-//Trebuie citita ca sup, nu ca inf!
+
     for(i = 0; i < n; i++)
-        for(j = 0; j <= i; j++)
+        for(j = 0; j <= n-i-1; j++)
     {
         sup[i][j] = count;
         count++;
@@ -55,13 +56,35 @@ int main()
 
     for(i = 0; i < n; i++)
     {
-        for(j = 0; j <= i; j++)
+        for(j = 0; j <= n-i-1; j++)
             printf("%d ", sup[i][j]);
         printf("\n");
     }
 
 
+    //I * S - static - nu mere'
+    int IS[n][n];
+    int k;
+
+    for(i = 0; i < n; i++)
+    {
+        for (j = 0; j < n; j++)
+        {
+            for (k = 0; k < n; k++)
+            {
+                IS[i][j] += inf[i][k] * sup[k][j];
+            }
+        }
+    }
+
+    for(i = 0; i < n; i++)
+    {
+        for (j = 0; j < n; j++)
+        {
+            printf("%d ", IS[i][j]);
+        }
+        printf("\n");
+    }
+
     return 0;
 }
-
-
