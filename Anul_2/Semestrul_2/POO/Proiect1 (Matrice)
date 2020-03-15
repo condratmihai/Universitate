@@ -1,0 +1,633 @@
+#include <iostream>
+#include <stdlib.h>
+#include <cmath>
+using namespace std;
+
+class matrice
+{
+private:
+
+	int linii;
+	int coloane;
+
+	double** data = NULL;
+
+	bool operatie_incompatibila;
+
+public:
+
+	matrice(double, int, int);  //constructor initialzare
+	matrice(matrice&);          //constructor copiere
+	~matrice();
+
+	void citire(istream& in);   //metoda citire
+	void afisare(ostream& out); //metoda afisare
+
+	matrice& operator=(matrice& M);                     //supraincarcare operator atribuire
+	friend matrice& operator+(matrice& M, matrice& N);  //supraincarcare operator +
+	friend matrice& operator-(matrice& M, matrice& N);  //supraincarcare operator -
+	friend matrice& operator*(matrice& M, matrice& N);  //supraincarcare operator *
+	friend matrice& operator*(int n, matrice& M);		//supraincarcare operator *
+	friend matrice& operator*(matrice& M, int n);		//supraincarcare operator *
+	friend bool operator==(matrice& M, matrice& N);     //supraincarcare operator ==
+	friend istream& operator>>(istream& in, matrice& M);
+	friend ostream& operator<<(ostream& out, matrice& M);
+
+	void reactualizare(double, int, int); //metoda reactualizare matrice
+
+	friend int nrlinii(matrice& M);       //functii friend
+	friend int nrcoloane(matrice& M);
+	friend int nrelemente(matrice& M);
+
+	friend matrice& rezolvare(matrice&, matrice&); //rezolvare ecuatie A*X + B = O
+	friend double determinant(matrice& M);
+	friend double delta(matrice& M, int n);
+
+	void citire_n_obiecte(); //metoda publica citire/memorare/afisare n obiecte
+
+	bool problematic() { return operatie_incompatibila; }
+};
+
+matrice::matrice(double nr = 0, int linii = 1, int coloane = 1)
+{
+	this->linii = linii;
+	this->coloane = coloane;
+
+	this->operatie_incompatibila = false;
+
+	this->data = new double* [linii];
+	for (int i = 0; i < linii; i++)
+		data[i] = new double[coloane];
+
+	for (int i = 0; i < linii; i++)
+		for (int j = 0; j < coloane; j++)
+			data[i][j] = nr;
+
+}
+
+matrice::matrice(matrice& M)
+{
+	this->linii = M.linii;
+	this->coloane = M.coloane;
+
+	this->operatie_incompatibila = M.operatie_incompatibila;
+
+	this->data = new double* [linii];
+	for (int i = 0; i < linii; i++)
+		data[i] = new double[coloane];
+
+	for (int i = 0; i < linii; i++)
+		for (int j = 0; j < coloane; j++)
+			data[i][j] = M.data[i][j];
+}
+
+matrice::~matrice()
+{
+	for (int i = 0; i < this->linii; i++)
+		delete[] data[i];
+	delete[] data;
+}
+
+int nrlinii(matrice& M) { return M.linii; }
+int nrcoloane(matrice& M) { return M.coloane; }
+int nrelemente(matrice& M) { return M.linii * M.coloane; }
+
+void matrice::reactualizare(double nr, int linii, int coloane)
+{
+	for (int i = 0; i < this->linii; i++)
+		delete[] data[i];
+	delete[] data;
+
+	this->linii = linii;
+	this->coloane = coloane;
+
+	this->data = new double* [linii];
+	for (int i = 0; i < linii; i++)
+		data[i] = new double[coloane];
+
+	for (int i = 0; i < linii; i++)
+		for (int j = 0; j < coloane; j++)
+			data[i][j] = nr;
+
+}
+
+void matrice::citire(istream& in)
+{
+	for (int i = 0; i < linii; i++)
+		delete[] data[i];
+	delete[] data;
+
+	cout << "Nr. de linii: ";
+	in >> linii;
+	cout << "Nr. de coloane: ";
+	in >> coloane;
+	cout << "Introduceti matricea:\n";
+
+	this->data = new double* [linii];
+	for (int i = 0; i < linii; i++)
+		data[i] = new double[coloane];
+
+	for (int i = 0; i < linii; i++)
+		for (int j = 0; j < coloane; j++)
+		{
+			double tmp;
+			in >> tmp;
+			data[i][j] = tmp;
+		}
+	cout << endl;
+}
+
+istream& operator>>(istream& in, matrice& M)
+{
+	M.citire(in);
+	return in;
+}
+
+void matrice::afisare(ostream& out)
+{
+	out << "Nr. de linii: " << linii << endl;
+	out << "Nr. de coloane: " << coloane << endl;
+	out << "Matricea este:" << endl;
+
+	for (int i = 0; i < linii; i++)
+	{
+		for (int j = 0; j < coloane; j++)
+			out << data[i][j] << " ";
+		out << endl;
+	}
+	out << endl;
+}
+
+ostream& operator<<(ostream& out, matrice& M)
+{
+	M.afisare(out);
+	return out;
+}
+
+inline matrice& matrice::operator=(matrice& M)
+{
+	if (M.operatie_incompatibila == false)
+	{
+		this->linii = M.linii;
+		this->coloane = M.coloane;
+
+		this->data = new double* [linii];
+		for (int i = 0; i < M.linii; i++)
+			this->data[i] = new double[coloane];
+
+		for (int i = 0; i < M.linii; i++)
+			for (int j = 0; j < M.coloane; j++)
+				data[i][j] = M.data[i][j];
+	}
+	
+	this->operatie_incompatibila = M.operatie_incompatibila;
+	return *this;
+}
+
+inline matrice& operator+(matrice& M, matrice& N)
+{
+	matrice* S = new matrice;
+
+	if (M.linii == N.linii && M.coloane == N.coloane)
+	{
+		S->linii = M.linii;
+		S->coloane = M.coloane;
+
+		S->data = new double* [S->linii];
+		for (int i = 0; i < S->linii; i++)
+			S->data[i] = new double[S->coloane];
+
+		for (int i = 0; i < S->linii; i++)
+			for (int j = 0; j < S->coloane; j++)
+				S->data[i][j] = M.data[i][j] + N.data[i][j];
+	}
+	else
+	{
+		cout << "Matricile sunt incompatibile." << endl;
+		S->operatie_incompatibila = true;
+	}
+
+	return *S;
+}
+
+inline matrice& operator-(matrice& M, matrice& N)
+{
+	matrice* S = new matrice;
+
+	if (M.linii == N.linii && M.coloane == N.coloane)
+	{
+		S->linii = M.linii;
+		S->coloane = M.coloane;
+
+		S->data = new double* [S->linii];
+		for (int i = 0; i < S->linii; i++)
+			S->data[i] = new double[S->coloane];
+
+		for (int i = 0; i < S->linii; i++)
+			for (int j = 0; j < S->coloane; j++)
+				S->data[i][j] = M.data[i][j] - N.data[i][j];
+	}
+	else
+	{
+		cout << "Matricile sunt incompatibile." << endl;
+		S->operatie_incompatibila = true;
+	}
+
+	return *S;
+}
+
+inline bool operator==(matrice& M, matrice& N)
+{
+	if (M.linii == N.linii && M.coloane == N.coloane)
+	{
+		for (int i = 0; i < M.linii; i++)
+			for (int j = 0; j < M.coloane; j++)
+				if (M.data[i][j] != N.data[i][j]) return false;
+
+		return true;
+	}
+	return false;
+}
+
+inline matrice& operator*(int n, matrice& M)
+{
+	matrice* R = new matrice;
+
+	R->linii = M.linii;
+	R->coloane = M.coloane;
+
+	R->data = new double* [M.linii];
+	for (int i = 0; i < M.linii; i++)
+		R->data[i] = new double[M.coloane];
+
+	for (int i = 0; i < M.linii; i++)
+		for (int j = 0; j < M.coloane; j++)
+			R->data[i][j] = n * M.data[i][j];
+
+	return *R;
+}
+
+inline matrice& operator*(matrice& M, int n)
+{
+	matrice* R = new matrice;
+
+	R->linii = M.linii;
+	R->coloane = M.coloane;
+
+	R->data = new double* [M.linii];
+	for (int i = 0; i < M.linii; i++)
+		R->data[i] = new double[M.coloane];
+
+	for (int i = 0; i < M.linii; i++)
+		for (int j = 0; j < M.coloane; j++)
+			R->data[i][j] = n * M.data[i][j];
+
+	return *R;
+}
+
+inline matrice& operator*(matrice& M, matrice& N)
+{
+	matrice* R = new matrice;
+
+	if (M.linii == N.coloane)
+	{
+		R->linii = M.linii;
+		R->coloane = N.coloane;
+
+		R->data = new double* [M.linii];
+		for (int i = 0; i < M.linii; i++)
+			R->data[i] = new double[N.coloane];
+
+		for (int i = 0; i < M.linii; i++)
+			for (int j = 0; j < N.coloane; j++)
+				R->data[i][j] = 0;
+
+
+		for (int i = 0; i < M.linii; i++)
+			for (int j = 0; j < N.coloane; j++)
+				for (int k = 0; k < M.coloane; k++)
+					R->data[i][j] = R->data[i][j] + M.data[i][k] * N.data[k][j];
+	}
+	else
+	{
+		cout << "Matricile sunt incompatibile." << endl;
+		R->operatie_incompatibila = true;
+	}
+
+	return *R;
+}
+
+inline double delta(matrice& M, int n)
+{
+	double det = 0;
+	matrice N(0, n - 1, n - 1);
+
+	if (n == 1)
+		return M.data[0][0];
+
+	if (n == 2)
+		return ((M.data[0][0] * M.data[1][1]) - (M.data[1][0] * M.data[0][1]));
+
+	else {
+		for (int k = 0; k < n; k++)
+		{
+			int _i = 0;
+			for (int i = 1; i < n; i++)
+			{
+				int _j = 0;
+				for (int j = 0; j < n; j++)
+				{
+					if (j == k)
+						continue;
+
+					N.data[_i][_j] = M.data[i][j];
+					_j++;
+				}
+				_i++;
+			}
+			det = det + ((-1 + 2 * ((k + 1) % 2)) * M.data[0][k] * delta(N, n - 1)); // (-1 + 2 * ((x+1)%2)) == pow(-1, k)
+		}
+	}
+
+	return det;
+}
+
+double determinant(matrice& M)
+{
+	if (M.linii == M.coloane)
+		return delta(M, M.linii);
+	else
+		cout << "Matricea nu este patratica." << endl;
+}
+
+matrice& rezolvare(matrice& A, matrice& B)
+{
+	matrice* X = new matrice;
+
+	bool rezolvabil = true;
+
+	if (A.linii != A.coloane)
+	{
+		cout << "Matricea A nu este patratica." << endl;
+		rezolvabil = false;
+	}
+	if (B.linii != A.coloane || B.coloane != 1)
+	{
+		cout << "B nu este un vector compatibil cu A." << endl;
+		rezolvabil = false;
+	}
+
+	matrice O (0, A.linii, 1);
+
+	if (rezolvabil == true)
+	{
+		if (determinant(A))
+		{
+			////////////////////////////////
+			int i, j, k, n;
+
+			n = nrlinii(A);
+
+			matrice X_extins(0, n, n + 1);
+			matrice S(0, n, 1);
+
+			//matrice extinsa
+			for (i = 0; i < n; i++)
+				for (j = 0; j < n; j++)
+					X_extins.data[i][j] = A.data[i][j];
+			B = (-1) * B;
+			
+			for (k = 0; k < n; k++)
+				X_extins.data[k][n] = B.data[k][1];
+			
+			//pregatire pt. eliminare gaussiana
+			for (i = 0; i < n; i++)
+			{
+				for (j = i + 1; j < n; j++)
+				{
+					if (abs(X_extins.data[i][i]) < abs(X_extins.data[j][i]))
+					{
+						for (k = 0; k < n + 1; k++)
+						{
+							X_extins.data[i][k] = X_extins.data[i][k] + X_extins.data[j][k];
+							X_extins.data[j][k] = X_extins.data[i][k] - X_extins.data[j][k];
+							X_extins.data[i][k] = X_extins.data[i][k] - X_extins.data[j][k];
+						}
+					}
+				}
+			}
+
+			//eliminare gaussiana
+			for (i = 0; i < n - 1; i++)
+			{
+				for (j = i + 1; j < n; j++)
+				{
+					double d = X_extins.data[j][i] / X_extins.data[i][i];
+					for (k = 0; k < n + 1; k++)
+					{
+						X_extins.data[j][k] = X_extins.data[j][k] - d * X_extins.data[i][k];
+					}
+				}
+			}
+
+			//substitutie
+			for (i = n - 1; i >= 0; i--)
+			{
+				S.data[i][1] = X_extins.data[i][n];
+
+				for (j = i + 1; j < n; j++)
+				{
+					if (i != j)
+					{
+						S.data[i][1] = S.data[i][1] - X_extins.data[i][j] * S.data[j][1];
+					}
+				}
+				S.data[i][1] = S.data[i][1] / X_extins.data[i][i];
+			}
+			////////////////////////////////
+
+			
+			X->operatie_incompatibila = false;
+			cout << S;
+		}
+
+		else
+		{
+			if (B == O)
+				cout << "Sistemul este compatibil nedeterminat (are o infinitate de solutii)." << endl;
+			else
+				cout << "Sistemul nu este compatibil (nu are solutii)." << endl;
+
+			X->operatie_incompatibila = true;
+		}
+	}
+
+	else
+	{
+		cout << "Sistemul nu are solutie unica." << endl;
+		X->operatie_incompatibila = true;
+	}
+	
+	return *X;
+}
+
+inline void citire_n_obiecte()
+{
+	int n;
+	cout << "Introduceti numarul de matrici ce urmeaza sa fie citite: ";
+	cin >> n;
+
+	matrice* arr = new matrice[n];
+	
+	cout << "\nCitire matrici:\n" << endl;
+	for (int i = 0; i < n; i++)
+		cin >> arr[i];
+
+	cout << "\nAfisare matrici citite:\n" << endl;
+	for (int i = 0; i < n; i++)
+		cout << arr[i];
+}
+
+void menu_output()
+{
+	cout << "Condrat Mihai (Grupa 211) - Tema 15: Matrice (double)" << endl;
+	cout << "-----------------------------------------------------\n";
+
+	cout << "\n                      MENIU:" << endl;
+	cout << "=====================================================\n\n";
+
+	cout << "1. Suma a doua matrici." << endl;
+	cout << "2. Diferenta a doua matrici." << endl;
+	cout << "3. Produsul a doua matrici." << endl;
+	cout << "4. Produsul dintre un intreg si o matrice." << endl;
+	cout << "5. Determinantul unei matrici." << endl;
+	cout << "6. Rezolvarea sistemului matriceal A*X + B = O (A matrice patratica si B matrice coloana)." << endl;
+	
+	cout << "0. Iesire." << endl;
+}
+
+void menu()
+{
+	int option;
+	option = 0;
+
+	do
+	{
+		menu_output();
+
+		cout << "\n\nIntroduceti numarul actiunii: ";
+		cin >> option;
+		cout << endl;
+
+		if (option == 1)
+		{
+			matrice A, B, R;
+
+			cout << "Cititi prima matrice:\n" << endl;
+			cin >> A;
+			cout << "Cititi a doua matrice:\n" << endl;
+			cin >> B;
+			
+			R = A + B;
+			if (R.problematic() == false)
+			{
+				cout << "Suma matricilor introduse este:\n" << endl;
+				cout << R;
+			}
+		}
+
+		if (option == 2)
+		{
+			matrice A, B, R;
+
+			cout << "Cititi prima matrice:\n" << endl;
+			cin >> A;
+			cout << "Cititi a doua matrice:\n" << endl;
+			cin >> B;
+
+			R = A - B;
+			if (R.problematic() == false)
+			{
+				cout << "Diferenta matricilor introduse este:\n" << endl;
+				cout << R;
+			}
+		}
+
+		if (option == 3)
+		{
+			matrice A, B, R;
+
+			cout << "Cititi prima matrice:\n" << endl;
+			cin >> A;
+			cout << "Cititi a doua matrice:\n" << endl;
+			cin >> B;
+
+			R = A * B;
+			if (R.problematic() == false)
+			{
+				cout << "Produsul matricilor introduse este:\n" << endl;
+				cout << R;
+			}
+		}
+
+		if (option == 4)
+		{
+			int n;
+			matrice A;
+
+			cout << "Cititi intregul:\n" << endl;
+			cin >> n;
+			cout << "Cititi matricea:\n" << endl;
+			cin >> A;
+
+			cout << "Produsul dintre intregul " << n << " si matricea intodusa este:\n" << endl;
+			cout << n * A;
+		}
+
+		if (option == 5)
+		{
+			matrice A;
+
+			cout << "Cititi matricea:\n" << endl;
+			cin >> A;
+			
+			if (nrlinii(A) == nrcoloane(A))
+				cout << "Matricea citita are determinantul " << determinant(A) << endl;
+			else cout << "Matricea nu este patratica." << endl;
+		}
+
+		if (option == 6)
+		{
+			matrice A, B, X;
+
+			cout << "Cititi prima matrice:\n" << endl;
+			cin >> A;
+			cout << "Cititi a doua matrice:\n" << endl;
+			cin >> B;
+
+			X = rezolvare(A, B);
+		}
+		
+		if (option == 0)
+		{
+			cout << "\nEXIT!\n";
+		}
+
+		if (option < 0 || option > 6)
+		{
+			printf("\nSelectie invalida!\n");
+		}
+
+		cout << endl;
+
+		system("pause");
+		system("cls");
+	} while (option != 0);
+}
+
+int main()
+{
+	menu();
+
+	return 0;
+}
