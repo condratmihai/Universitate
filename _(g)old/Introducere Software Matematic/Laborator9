@@ -1,0 +1,73 @@
+%EXERCITIUL 4
+
+%4, e)
+x = linspace(-3,3);
+y = linspace(-3,3);
+
+[X,Y] = meshgrid(x,y);
+
+Z = X.^2/3 + 2*sin(3*Y);
+
+Z(x.^2 + y.^2 >= 1) = NaN;
+
+surf(X,Y,Z); %grafic in spatiu
+view(0,0); %proiectie Ozx
+view(90,0); %proiectie Oyz
+view(0,90); %proiectie Oxy
+
+%4, f)
+x = linspace(-5,5);
+y = linspace(-5,5);
+
+[X,Y] = meshgrid(x,y);
+
+Z = X.^2/3 + 2*sin(3*Y);
+
+Z(x.^2 + y.^2 < 1) = NaN;
+Z(x.^2 + y.^2 > 9) = NaN;
+
+surf(X,Y,Z); %grafic in spatiu
+view(0,0); %proiectie Ozx
+view(90,0); %proiectie Oyz
+view(0,90); %proiectie Oxy
+
+%4, g)
+x = linspace(-10,10);
+y = linspace(-10,10);
+
+[X,Y] = meshgrid(x,y);
+
+R = sqrt(X.^2 + Y.^2);
+
+Z = sin(R)./R;
+
+surf(X,Y,Z); %grafic in spatiu
+view(0,0); %proiectie Ozx
+view(90,0); %proiectie Oyz
+view(0,90); %proiectie Oxy
+surf(X,Y,Z); %grafic in spatiu
+
+
+%EXERCITIUL 6
+
+%N = input();
+%x1 = input();
+%x2 = input();
+
+N = 4;
+
+x = zeros(N*N,1);
+x(1) = 1; 
+x(2) = 1;
+
+M = zeros(N,N);
+
+for i = 3:N*N
+    x(i) = x(i-1) + x(i-2);
+end
+
+for i = 1:N-1
+    for j = 1:N-1
+        M(i,j) = x(i*10 + mod(j,10) - 10);
+    end
+end

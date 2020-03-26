@@ -1,0 +1,45 @@
+%EX4
+
+x0 = [0, 12, 12, 0, 0];
+y0 = [0, 0, 15, 15, 0];
+
+plot(x0, y0);
+hold on;
+
+%a)
+limsup_k = 15/36;
+
+%b)
+K = linspace(eps, limsup_k - eps, 4);
+
+syms x;
+P = -x.^2 + 12.*x;
+
+for i = 1:4
+   fplot(x, K(i)*P, [0,12]);
+   hold on;
+end
+
+%c)
+I = int (P, 0, 12);
+k = (12*15/2)/I;
+
+
+%EX3
+
+%a)
+syms x y;
+S = (x+2)*(x-2)*(x-4.5);
+expand(S);
+
+%b)
+P = x.^6 - 6.5 * x.^5 - 58 * x.^4 + 167.5 * x.^3 + 728 * x.^2 - 890 * x - 1400;
+sol = solve(P);
+
+%c)
+S1 = sin(4*x) - 4 * sin(x) * cos(x) + 8 * (sin(x))^3 * cos(x);
+simplify(S1)
+
+S2 = cos(x) * cos(y) - 1/2 * (cos(x-y) + cos(x+y));
+simplify(S2)
+

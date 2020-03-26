@@ -1,0 +1,1100 @@
+* Instructiuni de incarcare in registri a unor valori imediate sau adrese:
+
+lui rt, imm
+
+## incarca partea superioara imediat (load upper immediate);
+## efectueaza: rt <- imm << 16
+#    adica se incarca jumatatea de word inferioara a lui imm in
+#    jumatatea de word superioara a lui rt, iar
+#    jumatatea de word inferioara a lui rt se initializeaza cu 0;
+#  imm trebuie sa fie din intervalul 0, ..., 2^16-1, altfel se genereaza
+#   eroare la compilare (desi printre instructiunile prin care se
+#   translateaza anumite pseudoinstructiuni pot aparea unele de forma:
+#   lui $1, -1);
+## are format I cu:  |  0xf   |   0   |   rt  |          imm           |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti          16 biti
+
+li rdest, imm
+
+## incarca imediat (load immediate);
+## efectueaza: rdest <- imm;
+#  imm este un intreg (poate fi si negativ):
+#    0, 1, -1, 0x00000001, -0x00000001, etc.
+## este o pseudoinstructiune;
+## de exemplu:
+#    li $t0,0x00010002
+#  se translateaza in:
+#    lui $1, 1
+#    ori $8, $1, 2
+#  adica:
+#    incarca 1 in cei 16 biti superiori ai lui $1;
+#       astfel $1 va contine: 0x00010000
+#    se pune in $8 ($t0) rezultatul disjunctiei pe biti intre $1 si 2,
+#       adica intre 0x00010000 si 0x00000002, care este 0x00010002
+#  in felul acesta putem incarca o valoare ce nu incape pe 16 biti (dar
+#   incape pe 32 biti) folosind instructiunile ce au corespondent direct in
+#   cod masina "lui" si "ori", care insa nu accepta decat valori imediate ce
+#   incap pe 16 biti;
+#  notam insa ca:
+#    li $t0,1
+#  se translateaza in:
+#    ori $8, $0, 1
+#  adica valoarea lui $t0 devine disjunctia pe biti intre 0x00000000 si
+#    0x00000001, care este 0x00000001 - deci compilatorul cauta sa optimizeze
+#    translatarea lui "li";
+
+la rdest, eticheta
+
+## incarca adresa (load address);
+## efectueaza: rdest <- adresa asociata etichetei;
+## este o pseudoinstructiune;
+
+* Instructiuni de transfer date intre memorie si registri:
+
+In toate instructiunile din aceasta sectiune "adr" este o expresie a carei
+ evaluare produce o adresa de memorie; ea poate fi:
+ imm - valoare imediata (desemnand adresa respectiva);
+ eticheta - adresa desemnata este adresa asociata la compilare etichetei;
+ eticheta +/- imm - adresa desemnata este adresa asociata la compilare
+        etichetei +/- valoarea imediata;
+ (rs) - un registru general intre paranteze; adresa desemnata este continutul
+        registrului (determinat deci la momentul executiei);
+ imm(rs) - adresa desemnata este valoarea imediata (care poate fi si nula sau
+        negativa) + continutul registrului (determinat deci la momentul
+        executiei);
+ eticheta(rs) - adresa desemnata este adresa asociata la compilare etichetei
+        + continutul registrului;
+ eticheta +/- imm(rs) - adresa desemnata este adresa asociata la compilare
+        etichetei +/- valoarea imediata + continutul registrului.
+
+lb/lbu/lh/lhu/lw  rt,  adr
+
+## incarca (load) octet/octet fara semn/halfword/halfword fara semn/word;
+## efectueaza:
+#  lb: incarca un octet de la adresa "adr" in octetul low din registrul "rt",
+#        propagand bitul sau de semn b7 in restul registrului;
+#  lbu:incarca un octet de la adresa "adr" in octetul low din registrul "rt",
+#        propagand 0 in restul registrului;
+#  lh: incarca un half de la adresa "adr" in half-ul low din registrul "rt",
+#        propagand bitul sau de semn b15 in restul registrului;
+#  lhu:incarca un half de la adresa "adr" in half-ul low din registrul "rt",
+#        propagand 0 in restul registrului;
+#  lw: incarca un word de la adresa "adr" in registrul "rt";
+## incarcarea reuseste doar daca adresa "adr" este aliniata la un multiplu al
+#   dimensiunii tipului (byte (1), half (2), resp. word (4));
+## toate sunt pseudoinstructiuni, mai putin formele in care "adr" este
+#   "imm(rs)", care au formatul I:
+##                   |   op   |  rs   |   rt  |          imm           |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti          16 biti
+#   unde op este respectiv: 0x20(lb)/0x24(lbu)/0x21(lh)/0x25(lhu)/0x23(lw);
+## Obs: propagarea bitului de semn in cazurile lb, lh face ca config. din rt,
+#   interpretata ca nr. intreg (cu semn), sa insemne acelasi lucru ca config.
+#   incarcata in partea sa low;
+
+sb/sh/sw  rt,  adr
+
+## memoreaza (store) octet/halfword/word;
+## efectueaza:
+#  sb: scrie octetul low al registrului "rt" in memorie la adresa "adr";
+#  sh: scrie half-ul low al registrului "rt" in memorie la adresa "adr";
+#  sw: scrie word-ul din registrul "rt" in memorie la adresa "adr";
+## memorarea reuseste doar daca adresa "adr" este aliniata la un multiplu al
+#   dimensiunii tipului (byte (1), half (2), resp. word (4));
+## toate sunt pseudoinstructiuni, mai putin formele in care "adr" este
+#   "imm(rs)", care au formatul I:
+##                   |   op   |  rs   |   rt  |          imm           |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti          16 biti
+#   unde op este respectiv: 0x28(sb)/0x29(sh)/0x2b(sw);
+
+ld/sd  rdest,  adr
+
+## incarca/memoreaza cuvant dublu (64 biti, adica doua word-uri succesive);
+## efectueaza:
+#  ld: incarca un cuvant dublu de la adresa "adr" in perechea de registri
+#      "rdest", "rdest"+1;
+#  sd: scrie un cuvant dublu din perechea de registri "rdest", "rdest"+1
+#      in memorie la adresa "adr";
+## toate sunt pseudoinstructiuni;
+## exemplu:
+#   .data
+#   x: .word 0x00000001, 0x00000002
+#   y: .space 8
+#   .text
+#   main:
+#   ld $t1,x
+#     # se incarca word-urile 0x00000001, 0x00000002 in perechea ($t1, $t2),
+#     #  adica ($9,$10);
+#     # deci acum $t1=0x00000001, $t0=0x00000002
+#   sd $t1,y
+#     # se scriu word-urile 0x00000001, 0x00000002 din perechea ($t1,$t2) la
+#     #  adr. y; deci acum la adr. y vom gasi word-urile succesive:
+#     #  0x00000001  0x00000002 (adica la fel ca de la adr. x)
+#   li $v0,10
+#   syscall
+# (gandind cuvantul dublu ca un singur numar scris in little-endian, practic
+# s-a facut transferul numarului 0x0000000200000001 intre locatia de memorie
+# ce incepe la adr. y si locatia-registru ($t2,$t1) ($t2 reprezentand partea
+# hi si $t1 partea low);
+
+lwl/lwr rt, adr
+
+## incarca cuvant stanga/dreapta
+## efectueaza: incarca in registrul "rt" octetii din stanga/dreapta word-ului
+#              aflat la adresa "adr"; (?)
+#  adresa poate fi nealiniata;
+## toate sunt pseudoinstructiuni, mai putin formele in care "adr" este
+#   "imm(rs)", care au formatul I:
+#                    |   op   |  rs   |   rt  |          imm           |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti          16 biti
+#   unde op este respectiv: 0x22(lwl)/0x26(lwr);
+## exemplu:
+#   .data
+#   x: .word 0x01020304
+#   y: .word 0x05060708
+#   z: .word 0x090a0b0c
+#   .text
+#   main:
+#   la $t0,y
+#   lwl $t1,0($t0)  # $t1 va contine 0x08000000
+#   lwr $t2,0($t0)  # $t2 va contine 0x05060708
+#   li $v0,10
+#   syscall
+
+swl/swr rt, adr
+
+## memoreaza cuvant stanga/dreapta;
+## efectueaza: scrie octetii din stanga/dreapta registrului "rt" in memorie
+                la adresa "adr"; (?)
+#  adresa poate fi nealiniata;
+## toate sunt pseudoinstructiuni, mai putin formele in care "adr" este
+#   "imm(rs)", care au formatul I:
+##                   |   op   |  rs   |   rt  |          imm           |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti          16 biti
+#   unde op este respectiv: 0x2a(swl)/0x2e(swr);
+## exemplu:
+#   .data
+#   x: .space 4
+#   y: .space 4
+#   z: .space 8
+#   t: .space 4
+#   u: .space 4
+#   .text
+#   main:
+#   li $t1,0x01020304
+#   la $t0,y
+#   swl $t1,0($t0)  # la adr. y se mem. word-ul 0x00000001
+#   la $t0,t
+#   swr $t1,0($t0)  # la adr. t se mem. word-ul 0x01020304
+#   li $v0,10
+#   syscall
+
+ulh/ulhu/ulw  rdest,  adr
+
+## incarca half nealiniat/half fara semn nealiniat/word nealiniat;
+## efectueaza:
+#  ulh: incarca un half de la adresa "adr" in half-ul low din reg. "rdest",
+#        propagand bitul sau de semn b15 in restul registrului;
+#       nu este obligatoriu ca adresa "adr" sa fie aliniata  (la un multiplu
+#        de 2);
+#  ulhu: incarca un half de la adresa "adr" in half-ul low din reg. "rdest",
+#        propagand 0 in restul registrului;
+#       nu este obligatoriu ca adresa "adr" sa fie aliniata  (la un multiplu
+#        de 2);
+#  ulw: incarca un word de la adresa "adr" in registrul "rdest";
+#       nu este obligatoriu ca adresa "adr" sa fie aliniata  (la un multiplu
+#        de 4);
+## toate sunt pseudoinstructiuni;
+## exemplu:
+#   .data
+#   x: .byte 0x81
+#   y: .byte 0x82, 0x83, 0x84, 0x85, 0x86
+#   .text
+#   main:
+#   ulh $t0,y  # $t0 = 0xffff8382 (s-a propagat b15 = 1)
+#   ulhu $t0,y # $t0 = 0x00008382 (s-a propagat 0)
+#   ulw $t0,y  # $t0 = 0x85848382
+#   li $v0,10
+#   syscall
+# observatii:
+#  - PCSpim arata ca adresa lui y este 0x10010001, deci nu e aliniata la
+#     multiplu de 2 sau 4;
+#  - in scrierea ca numar a word-ului din $t0 valorile apar inversate din
+#     cauza lui little-endian;
+#  - in primele doua cazuri b15 este 1, deoarece in binar 8 = 1000;
+
+ush/usw  rsrc,  adr
+
+## scrie half nealiniat/word nealiniat;
+## efectueaza:
+#  ush: scrie half-ul low al registrului rsrc in memorie la adresa "adr";
+#       nu este obligatoriu ca adresa "adr" sa fie aliniata  (la un multiplu
+#        de 2);
+#  usw: scrie word-ul din registrul rsrc in memorie la adresa "adr";
+#       nu este obligatoriu ca adresa "adr" sa fie aliniata  (la un multiplu
+#        de 4);
+## toate sunt pseudoinstructiuni;
+
+move  rdest,  rsrc
+
+## muta;
+## efectueaza: rdest <- rsrc
+#   (in ciuda numelui "muta", de fapt copiaza word-ul din reg. "rsrc" in reg.
+#   "rdest");
+## este o pseudoinstructiune;
+
+mflo/mfhi  rd
+mtlo/mthi  rs
+
+## muta din LO (mflo) / din HI (mfhi) / in LO (mtlo) / in HI (mthi);
+## efectueaza:
+#    rd <- LO (mflo) / rd <- HI (mfhi) / LO <- rs (mtlo) / HI <- rs (mthi)
+#   (i.e. copiaza word-ul dintr-un registru in celalalt);
+## mflo/mfhi au formatul:
+#                    |   0    |       0      |   rd  |   0   |0x12/0x10|
+#                    ---------------------------------------------------
+#                      6 biti       10 biti   5 biti   5 biti  6 biti
+#  mtlo/mthi au formatul:
+#                    |   0    |   rs  |           0          |0x13/0x11|
+#                    ---------------------------------------------------
+#                      6 biti   5 biti         15 biti          6 biti
+## LO si HI sunt registrii speciali ai unitatii de inmultire si impartire;
+#  aceasta pune rezultatele inmultirii si impartirii in acesti registri
+#   (a se vedea instructiunile de inmultire si impartire cu intregi de mai
+#   jos); utilizatorul nu poate face alte prelucrari cu ele direct aici ci
+#   trebuie sa le copieze in alti registri (de uz general); practic singurele
+#   instructiuni care ii permit utilizatorului sa acceseze registrii LO si HI
+#   sunt mflo, mfhi, mtlo, mthi;
+## exemplu:
+#   .text
+#   main:
+#   li $t0, 0x80000001
+#   li $t1, 2
+#   multu $t0, $t1  # inmultire fara semn - nu se propaga bitul de semn
+#    # efectueaza: (HI,LO) <- $t0 * $t1 (fara semn)
+#    # adica HI retine word-ul hi al produsului
+#    #   0x80000001 * 2 = 0x0000000100000010, adica word-ul 0x00000001
+#    # iar LO restine word-ul low al acestui produs, adica 0x00000010
+#   mflo $t0  # acum $t0 = 0x00000010 (adica nr. 2)
+#   mfhi $t1  # acum $t1 = 0x00000001 (adica nr. 1)
+#   add $t2,$t0,$t1  # $t2 = 1 + 2 = 3
+#    # obs. ca n-am fi putut aduna pe 1 cu 2 direct din LO si HI
+#    #  ci a trebuit mai intai sa-i copiem in registri de uz general
+#    #  (add lucreaza cu registri de uz general)
+#   li $t0, 14
+#   li $t1, 4
+#   divu $t0, $t1  # impartire fara semn si fara depasire
+#    # efectueaza: LO <- $t0 div $t1 (adica 3), HI <- $t0 mod $t1 (adica 2)
+#   mfhi $t2       # $t2 = 2 = restul impartirii
+#   bne $t2, $zero, et1 # daca $1 nu divide $t0 (rest nenul) salt la et1
+#    li $t3,1
+#   j et2
+#   et1:
+#    li $t3,2
+#   et2:
+#   li $v0,10
+#   syscall
+
+mfcz/mtcz  rt, reg
+ (practic am observat ca merge doar pentru z = 0, 1, 2)
+
+## muta din / in coprocesorul z;
+## efectueaza:
+#  mfcz: copiaza word-ul din reg. "reg" al coprocesorului z
+#         in reg. "rt" al CPU;
+#  mtcz: copiaza word-ul din reg. "rt" al CPU
+#         in reg. "reg" al coprocesorului z;
+#  coprocesorul 1 este coprocesorul de virgula mobila;
+#  registrii pot fi indicati prin $cod sau $nume, avand grija se se
+#   foloseasca numele specifice registrilor din UCP sau coprocesorul
+#   respectiv - de ex. reg $8 al UCP este $t0 iar reg. $8 al coprocesorului
+#   de virgula mobila este $f8;
+## format intern:
+#                    |  0x1z  |  0/4  |  rt   |  reg  |       0        |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti  5 biti      11 biti
+## un exemplu va fi dat pentru mfc1, mtc1 in sectiunea "Instructiuni de
+#   lucru in virgula mobila";
+
+Observatii:
+- In toate cazurile transferul consta practic in copierea configuratiei
+ binare (intre memorie si registri sau intre doi registri).
+- In toate calculele de adrese se numara octeti, nu half-uri, word-uri;
+ de exemplu:
+  la $t0,x
+  sb $t1,4($t0)
+  sh $t1,4($t0)
+  sw $t1,4($t0)
+ toate cele trei scrieri se fac la aceeasi adresa (anume la 4 octeti dupa
+  adresa lui x) - deci plecand de la adresa lui x in toate cazurile s-au
+  numarati 4 octeti in plus, si nu 4 half-uri (in cazul sh) sau 4 word-uri
+  (in cazul sw);
+ un "adr" de forma x($t0) este asemanatoare cu indexarea vectorilor din
+ limbajul C, x[i], numai ca in limbajul C adresa lui x[i] se calculeaza ca
+ fiind adresa lui x deplasata cu i componente ale vectorului, nu cu i
+ octeti.
+
+ In general instructiunile de procesare date lucreaza doar cu registri si
+valori imediate; de aceea, modul uzual de lucru cu memoria este: se incarca
+datele din memorie in registri, se opereaza cu ele in registri, se salveaza
+rezultatele in memorie; practic singurele instructiuni care acceaseaza
+memoria sunt cele descrise mai sus (si cele analoage pentru date in virgula
+mobila - a se vedea mai jos).
+
+* Instructiuni de ramificare, comparatie si salt:
+
+b eticheta
+
+## ramificare neconditionata
+## efectueaza: executia trece la (instructiunea aflata la adresa indicata de)
+#               eticheta;
+## este o pseudoinstructiune;
+
+beq/bne rs, rt, eticheta
+
+## ramifica la egal/diferit;
+## efectueaza: daca rs = / != rt
+#              atunci salt la eticheta
+## are format I cu:  |0x4/0x5 |   rs  |   rt  |          depl          |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti          16 biti
+#  unde depl este numarul de instructiuni masina (word-uri) peste care se
+#   sare, numarand inclusiv instructiunea beq/bne curenta - acest numar este
+#   determinat de compilator;
+#  de exemplu la:
+#    beq $t0, $t0, et
+#    lui $t0,1
+#    et:
+#    lui $t0,2
+#  in codificarea lui beq, depl va fi 0x0002, caci daca $t0 = $t0 se va sari
+#   la "lui $t0,2", adica peste 2 instrunctiuni (numarand de la cea curenta):
+#   "beq $t0, $t0, et", "lui $t0,1"
+
+blt/bltu/ble/bleu/bgt/bgtu/bge/bgeu rsrc1, rsrc2, eticheta
+
+## ramificare la
+#   mai mic strict cu semn / mai mic strict fara semn /
+#   mai mic sau egal cu semn / mai mic sau egal fara semn /
+#   mai mare strict cu semn / mai mare strict fara semn /
+#   mai mare sau egal cu semn / mai mare sau egal fara semn;
+## efectueaza:
+#   daca
+#      rsrc1
+#            < cu semn / < fara semn /
+#            <= cu semn / <= fara semn /
+#            > cu semn / > fara semn /
+#            >= cu semn / >= fara semn /
+#      rsrc2
+#   atunci salt la eticheta
+## la comparatia cu semn configuratiile din rsrc1 si rsrc2 sunt interpretate
+#   ca numere naturale si comparate fara semn; la comparatia fara semn sunt
+#   interpretate ca numere intregi si comparate cu semn;
+#  de exemplu:
+#    li $t0,0x00000000  # si ca natural si ca intreg $t0 = 0
+#    li $t1,0xffffffff  # ca natural $t0=2^32-1 (>0), ca intreg $t0=-1 (<0)
+#    blt  $t0,$t1,et1    # nu sare (ca intregi nu avem 0 < -1)
+#    bltu $t0,$t1,et2    # sare (ca naturale avem 0 < 2^32-1)
+## sunt pseudoinstructiuni;
+
+bltz/blez/bgtz/bgez rs, eticheta
+
+## ramificare la
+#   mai mic strict / mai mic sau egal /
+#   mai mare strict / mai mare sau egal
+#  ca 0
+## efectueaza: daca rs < / <= / > / >= 0
+#              atunci salt la eticheta
+## are format I cu:  |1/6/7/1 |   rs  |0/0/0/1|          depl          |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti          16 biti
+#  unde depl este numarul de instructiuni masina (word-uri) peste care se
+#   sare, numarand inclusiv instructiunea beq/bne curenta - acest numar este
+#   determinat de compilator;
+
+beqz/bnez reg, eticheta
+
+## ramificare la egal cu/diferit de 0
+## efectueaza: daca reg = / != 0 atunci salt la eticheta
+## sunt pseudoinstructiuni;
+
+bltzal/bgezal rs, eticheta
+
+## ramificare si legatura la
+#   mai mic strict / mai mare sau egal
+#  ca 0
+#   (i.e. dupa test si inainte de salt se salveaza adresa instructiunii
+#    urmatoare in registrul $ra ($31));
+## efectueaza: daca rs < / >= 0
+#              atunci $ra <- adr. instr. urm. si apoi salt la eticheta
+## au format I cu:  |    1   |   rs  |0x10/0x11|          depl          |
+#                   -----------------------------------------------------
+#                     6 biti   5 biti  5 biti          16 biti
+#  unde depl este numarul de instructiuni masina (word-uri) peste care se
+#   sare, numarand inclusiv instructiunea beq/bne curenta - acest numar este
+#   determinat de compilator;
+## exemplu:
+#     lui $t0,1
+#     bgezal $t0, et  # salveaza in $ra adr. instr. urm.: "lui $t0,2"
+#     lui $t0,2
+#     et:
+#     lui $t1,3
+#     jr $ra          # salt la adr. din $ra, adica la instr. "lui $t0,2"
+## sunt utile la implementarea subrutinelor (a se vedea lectia 3);
+
+ Notam ca numarul de instructiuni peste care se sare la instructiunile de
+ramificare trebuie sa fie in intervalul -2^15, ..., 2^15-1, pentru a incapea
+pe 16 biti.
+
+ In procesoarele MIPS reale instructiunile de ramificare sunt ramificari
+intarziate (delayed branch), adica nu efectueaza saltul decat dupa ce
+s-a executat instructiunea urmatoare celei de ramificare ("delay slot"-ul
+ei). Ramificarile intarziate afecteaza calcularea offset-ului, deoarece
+acesta trebuie calculat in raport cu adresa instructiunea "delay slot"
+(PC+4). PCSpim nu simuleaza acest "delay slot" decat daca in meniul
+Simulator -> Settings bifam una din optiunile Bare machine sau
+Delayed Branches.
+
+slt/sltu rd, rs, rt
+
+## stabileste la mai mic strict cu/fara semn;
+## efectueaza: daca rs < rt
+#              atunci rd <- 1
+#              altfel rd <- 0
+#  deci rezultatul comparatiei nu provoaca salturi ci este stocat sub forma
+#   valorii 1 (true) sau 0 (false) intr-un registru; acesta poate fi
+#   consultat ulterior;
+## o aplicatie este detectarea carry-ului la operatii aritmetice - a se vedea
+#   exemplul referitor la adunarea adunarea a doua numere naturale lungi
+#   (multi word) de mai jos;
+#  o alta aplicatie este evaluarea expresiilor booleene: rezultatul
+#   true/false al expresiilor elementare de tip comparatie este stocat
+#   intr-un registru si poate fi usor compus logic cu alte valori de
+#   adevar - a se vedea exemplul referitor la evaluarea expresiilor booleene
+#   de mai jos;
+## au format R cu:   |   0    |   rs  |   rt  |   rd  |   0   |0x2a/0x2b|
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti  5 biti  5 biti  6 biti
+
+slti/sltiu rt, rs, imm
+
+## stabileste la mai mic strict imediat cu/fara semn;
+## efectueaza: daca rs < imm
+#              atunci rt <- 1
+#              altfel rt <- 0;
+## imm trebuie sa fie din intervalul -2^15, ..., 2^15-1, altfel se genereaza
+#   eroare la compilare;
+## au  format I cu:  |0xa/0xb |   rs  |   rt  |          imm           |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti          16 biti
+## practic am constatat ca imm este stocat pe ultimii 16 biti ai
+#   instructiunilor in format intern de intreg (cu semn); aceasta
+#   configuratie este apoi interpretata cu/fara semn in functie de tipul
+#   comparatiei (slti/sltiu);
+#  de exemplu:
+#     li $t1,0
+#     sltiu $t2, $t1, -1  # $t0 devine 1
+#  intr-adevar, -1 este stocat in ultimii 16 biti ca 0xffff, apoi sltu
+#   interpreteaza aceasta config. fara semn, deci ca fiind nr. 32767, care,
+#   evident, este > 0;
+
+seq/sne/sle/sleu/sgt/sgtu/sge/sgeu rdest, rsrc1, rsrc2
+
+## stabileste la
+#   egal / diferit /
+#   mai mic sau egal cu semn / mai mic sau egal fara semn /
+#   mai mare strict cu semn / mai mare strict fara semn
+#   mai mare sau egal cu semn / mai mare sau egal fara semn;
+## efectueaza:
+#   daca
+#      rsrc1
+#            = / != /
+#            <= cu semn / <= fara semn /
+#            > cu semn / > fara semn /
+#            >= cu semn / >= fara semn
+#      rsrc2
+#   atunci rdest <- 1
+#   altfel rdest <- 0
+## sunt pseudoinstructiuni;
+
+j eticheta
+
+## salt;
+## efectueaza: salt (neconditionat) la eticheta;
+## are format J cu:  |  0x2   |             obiectiv                   |
+#                    ---------------------------------------------------
+#                      6 biti                26 biti
+#  unde obiectiv este numarul de ordine absolut (nu deplasamentul fata de
+#   instructiunea curenta) al instructiunii masina (word-ului) avand adresa
+#   data de eticheta (deci instructiunea la care se sare) - acest numar este
+#   determinat de compilator;
+#  de exemplu la:
+#    j et
+#    lui $t0,1
+#    et:
+#    lui $t0,2
+#  daca instructiunea (word-ul) la care se sare, "lui $t0,2", are adresa
+#   0x0040002c, adica este al 0x0010000b-lea word din memorie, in codificarea
+#   lui "j et" obiectiv va fi 0x010000b;
+## intrucat obiectiv este pe 26 biti, cu "j" putem face salturi intr-o zona
+#   de memorie de 2^26 word-uri;
+
+jr rs
+
+## salt la registru;
+## efectueaza: salt la adresa din rs;
+## format:           |   0    |   rs  |           0           |    8   |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti          15 biti          6 biti
+
+jal eticheta
+
+## salt si legatura;
+#   (i.e. inainte de salt se salveaza adresa instructiunii urmatoare in
+#   registrul $ra ($31));
+## efectueaza: $ra <- adr. instr. urm. si apoi salt la eticheta;
+## are format J cu:  |  0x3   |             obiectiv                   |
+#                    ---------------------------------------------------
+#                      6 biti                26 biti
+#  unde obiectiv este numarul de ordine absolut (nu deplasamentul fata de
+#   instructiunea curenta) al instructiunii masina (word-ului) avand adresa
+#   data de eticheta (deci instructiunea la care se sare) - acest numar este
+#   determinat de compilator;
+## intrucat obiectiv este pe 26 biti, cu "jal" putem face salturi intr-o zona
+#   de memorie de 2^26 word-uri;
+## exemplu:
+#     lui $t0,1
+#     jal et         # salveaza in $ra adr. instr. urm.: "lui $t0,2"
+#     lui $t0,2
+#     et:
+#     lui $t1,3
+#     jr $ra         # salt la adr. din $ra, adica la instr. "lui $t0,2"
+## este utila la implementarea subrutinelor (a se vedea lectia 3);
+
+jalr rd, rs
+
+## salt si legatura in registru;
+## efectueaza: rd <- adr. instr. urm. si apoi salt la adr. din rs;
+#  rd poate lipsi si atunci se considera $ra ($31);
+## au format R cu:   |   0    |   rs  |   0   |   rd  |   0   |    9   |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti  5 biti  5 biti  6 biti
+## exemplu:
+#     la $t0,et1    # $t0 <- adr. instr. "jr $t1"
+#     jalr $t1,$t0  # $t1 <- adr. instr. "lui $t7,1", apoi salt la "jr $t1"
+#     et2:
+#     lui $t7,1
+#     et1:
+#     jr $t1        # salt la "lui $t7,1"
+## este utila la implementarea subrutinelor (a se vedea lectia 3);
+
+
+* Instructiuni de shiftare (deplasare) si rotire:
+
+sll/srl/sra rd, rt, imm
+
+## shiftare logica la stanga/logica la dreapta/aritmetica la dreapta
+## efectueaza: rd <- rt << imm  (logic)
+#   respectiv: rd <- rt >> imm  (logic)
+#   respectiv: rd <- rt >> imm  (aritmetic)
+#  imm trebuie sa fie din intervalul 0, ..., 31, altfel se genereaza eroare
+#   la compilare;
+## mai exact:
+#   la sll: se deplaseaza bitii la stanga cu imm pozitii,
+#           bitii care ies din word prin stanga se pierd,
+#           locurile goale ramase in dreapta se umplu cu 0;
+#   la srl: se deplaseaza bitii la dreapta cu imm pozitii,
+#           bitii care ies din word prin dreapta se pierd,
+#           locurile goale ramase in stanga se umplu cu 0;
+#   la sra: ca la srl, dar locurile goale ramase in stanga
+#           se umplu cu copii ale bitului de semn b31;
+## au format R cu:   |   0    |   rs  |   rt  |   rd  |  imm  |  0/2/3 |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti  5 biti  5 biti  6 biti
+## in acest caz campul rs este ignorat (practic am constatat ca se consid. 0);
+
+sllv/srlv/srav rd, rt, rs
+
+## shiftare logica variabila la stanga/logica variabila la dreapta/aritmetica
+#   variabila la dreapta
+## efectueaza: rd <- rt << rs  (logic)
+#   respectiv: rd <- rt >> rs  (logic)
+#   respectiv: rd <- rt >> rs  (aritmetic)
+#  am constatat ca daca valoarea lui rs este in afara intervalului 0, ..., 31
+#   se shifteaza cu rs mod 32 (in sensul restului pozitiv, de exemplu
+#   1 mod 32 =1, -1 mod 32 = 31);
+## (ce inseamna shiftare aritmetica sau logica - a se vedea mai sus)
+## au format R cu:   |   0    |   rs  |   rt  |   rd  |   0  |  4/6/7 |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti  5 biti  5 biti  6 biti
+
+Shiftarile la stanga/dreapta echivaleaza cu inmultiri/impartiri cu puteri ale
+ lui 2. Mai exact:
+ - shiftarea la stanga cu n echivaleaza cu inmultirea cu 2^n;
+ - shiftarea aritmetica la dreapta cu n echivaleaza cu impartirea la 2^n;
+   daca operandul ce trebuie impartit este pozitiv, se poate folosi si
+   shiftarea logica la dreapta.
+Astfel putem face inmultiri/impartiri mai rapide.
+
+rol/ror rdest, rsrc1, rsrc2
+
+## rotire la stanga/dreapta;
+## efectueaza: pune in rdest configuratia de biti din rsrc1 deplasata la
+#   stanga/dreapta cu rsrc2, a.i. bitii ce ies din word prin stanga/dreapta
+#   sunt introdusi in aceeasi ordine in locul gol creat in dreapta/stanga;
+## sunt pseudoinstructiuni care se translateaza in:
+#    subu $1, $0, rsrc2
+#    srlv/sllv $1, rsrc1, $1
+#    sllv/srlv rdest, rsrc1, rsrc2
+#    or rdest, rdest, $1
+#  adica:
+#    $at <- 0 - rsrc2
+#    $at <- rsrc1 >>/<< $at
+#      # practic se sfifteaza in sens contrar cu 32 - rsrc2, a.i. in $at
+#      # ajunge exact ceea ce ar disparea din word daca in loc de rotire
+#      # s-ar face shiftare logica obisnuita (in acelasi sens);
+#    rdest <- rsrc1 <</>> rsrc2
+#      # se shifteaza logic cu rsrc2 (in acelasi sens ca rotirea);
+#      # 32 - rsrc2 biti ies din word, iar in partea opusa apare un gol de
+#      # 32 - rsrc2 biti 0 (shiftarea e logica);
+#    rdest <- rdest | $at
+#      # partea care a iesit din word (si care s-a recuperat anterior in $at)
+#      # se scrie peste golul de 32 - rsrc2 biti 0;
+
+* Instructiuni logice:
+
+ Efectueaza operatii logice bit cu bit asupra unor word-uri.
+ Tablele operatiilor pe biti:
+
+   x | y | x and y | x or y | x xor y | x nand y | x nor y |     x | not x
+   ---------------------------------------------------------     ---------
+   0 | 0 |    0    |    0   |    0    |     1    |    1    |     0 | 1
+   0 | 1 |    0    |    1   |    1    |     1    |    0    |     1 | 0
+   1 | 0 |    0    |    1   |    1    |     1    |    0    |
+   1 | 1 |    1    |    1   |    0    |     0    |    0    |
+
+not rdest, rsrc
+
+## not;
+## efectueaza: rdest <- not rsrc  (operatia ~ din limbajul C);
+## este o pseudoinstructiune; am observat ca se transcrie prin:
+#   nor rdest, rsrc, $0
+
+and rd, rs, rt
+
+## and;
+## efectueaza: rd <- rs and rt  (operatia & din limbajul C);
+## are format R cu:  |   0    |   rs  |   rt  |   rd  |   0   |  0x24  |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti  5 biti  5 biti  6 biti
+
+andi rt, rs, imm
+
+## and imediat;
+## efectueaza: rt <- rs and imm  (operatia & din limbajul C);
+#   imm trebuie sa fie numar natural din intervalul 0, ..., 2^16-1
+#   (altfel se raporteaza eroare la compilare);
+## are format I cu:  |   0xc  |   rs  |   rt  |        imm             |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti         16 biti
+
+or rd, rs, rt
+
+## or;
+## efectueaza: rd <- rs or rt  (operatia | din limbajul C);
+## are format R cu:  |   0    |   rs  |   rt  |   rd  |   0   |  0x25  |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti  5 biti  5 biti  6 biti
+
+ori rt, rs, imm
+
+## or imediat;
+## efectueaza: rt <- rs or imm  (operatia | din limbajul C);
+#   imm trebuie sa fie numar natural din intervalul 0, ..., 2^16-1
+#   (altfel se raporteaza eroare la compilare);
+## are format I cu:  |   0xd  |   rs  |   rt  |        imm             |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti         16 biti
+
+xor rd, rs, rt
+
+## xor;
+## efectueaza: rd <- rs xor rt  (operatia ^ din limbajul C);
+## are format R cu:  |   0    |   rs  |   rt  |   rd  |   0   |  0x26  |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti  5 biti  5 biti  6 biti
+
+xori rt, rs, imm
+
+## xor imediat;
+## efectueaza: rt <- rs xor imm  (operatia ^ din limbajul C);
+#   imm trebuie sa fie numar natural din intervalul 0, ..., 2^16-1
+#   (altfel se raporteaza eroare la compilare);
+## are format I cu:  |   0xe  |   rs  |   rt  |        imm             |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti         16 biti
+
+nor rd, rs, rt
+## nor;
+## efectueaza: rd <- rs nor rt (= not (rs or rd) )
+## are format R cu:  |   0    |   rs  |   rt  |   rd  |   0   |  0x27  |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti  5 biti  5 biti  6 biti
+
+ Instructiunile and, andi sunt folosite la anularea unor biti, iar or, ori
+la setarea la 1 a unor biti. De asemenea, xor intre un regeistru si el insusi
+il anuleaza (este o cale rapida de a-i anula continutul).
+
+* Instructiuni de lucru in virgula mobila:
+
+ In instructiunile de mai jos prin FReg, FRdest, FRsrc, FRsrc1, FRsrc2 am
+notat niste registrii ai coprocesorului de virgula mobila $f0, ..., $f31; in
+cazul instructiunilor in dubla precizie trebuie in plus sa fie de cod par:
+$f0, $f2, ..., $f30 (si ei vor desemna o locatie de doi registri, de cod
+par-impar, de exemplu $f0 va desemna perechea $f0-$f1). Vom mai nota cu cc
+unul din flag-urile 0 - 7 ale coprocesorului de virgula mobila.
+
+lwc1/ldc1   FRdest,   adr
+swc1/sdc1   FRsrc,   adr
+l.s/l.d   FRdest,   adr
+s.s/s.d   FRsrc,   adr
+
+## lwc1 si l.s incarca un single de la adresa "adr" in reg. FRdest;
+#  ldc1 si l.d incarca un double de la adresa "adr" in reg. FRdest;
+#  swc1 si s.s scrie un single din reg. FRsrc la adresa "adr";
+#  sdc1 si s.d scrie un double din reg. FRsrc la adresa "adr";
+## in toate cazurile transferul consta practic in copierea configuratiei
+#    binare intre memorie si registri;
+## in cazul double FRdest, FRsrc trebuie sa fie de cod par si se transfera
+#   de fapt doua word-uri intre adresa "adr" si perechea de registri FRdest,
+#   Frdest+1, respectiv FRsrc,FRsrc+1;
+## "adr"poate fi: imm, et, et+/-imm, (reg), imm(reg), et(reg), et+/-imm(reg),
+#   unde "imm" este o valoare imediata, "et" o eticheta, "reg" un registru
+#   general (deci nu unul de virgula mobila); semnificatia expresiei "adr"
+#   este ca la instructiunile lw, lb, sw, sb;
+## toate sunt pseudoinstructiuni in afara de lwc1, ldc1, swc1, sdc1 in cazul
+#   cand "adr" este imm(reg), caz in care toate au formatul I cu:
+#                    |   op   |   rs  |FRdest |          imm           |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti          16 biti
+#   unde op este: 0x31(lwc1)/0x35(ldc1)/0x39(swc1)/0x3d(sdc1);
+## practic am constatat ca transferul consta in copierea propriuzisa a
+#   configuratiei de biti (fara a o interpreta ca numar) intre memorie si
+#   registri;
+
+in cele ce urmeaza, pentru simplitate, vom omite sa mai mentionam ca in cazul
+double sunt afectate cate doua word-uri si sunt implicati cate doi registri,
+de cod par-impar, iar in instructiune este scris doar cel de cod par;
+
+li.s/li.d   FRdest,   imm
+## incarcare valoare imediata single/double;
+## efect: FRdest <- imm
+## valoarea imediata trebuie scrisa in virgula mobila - de exemplu 2.0, nu 2;
+## sunt pseudoinstructiuni (?);
+
+mfc1/mtc1  rt, reg
+
+## muta din / in coprocesorul de virgula mobila (coprocesorul 1);
+#  sunt variantele pentru z = 1 ale instructiunilor mfcz/mtcz prezentate
+#   in sectiunea "Instructiuni de transfer date intre memorie si registri";
+## efectueaza:
+#  mfc1: copiaza word-ul din reg. "reg" al coprocesorului 1
+#         in reg. "rt" al CPU;
+#  mtc1: copiaza word-ul din reg. "rt" al CPU
+#         in reg. "reg" al coprocesorului 1;
+#  practic se copiaza config. binara intre "rt" si "reg", fara conversie
+#   intre formatul de intreg si cel de single;
+#  registrii pot fi indicati prin $cod sau $nume, avand grija se se
+#   foloseasca numele specifice registrilor din UCP sau coprocesorul 1 - de
+#   ex. reg $8 al UCP este $t0 iar reg. $8 al coprocesorului de virgula
+#   mobila este $f8;
+## format intern:
+#                    |  0x11  |  0/4  |  rt   |  reg  |       0        |
+#                    ---------------------------------------------------
+#                      6 biti   5 biti  5 biti  5 biti      11 biti
+## exemplu:
+#   .text
+#   main:
+#   li.s $f1,0.5
+#    # 0.5 se reprezinta ca single pe un word astfel: 0x3f000000
+#   mfc1 $t0, $f1
+#    # instr. echiv. cu: mfc1 $t0, $1
+#    #  (se ia reg. 1 din coprocesorul de virgula mobila, adica $f1, nu cel
+#    #  de uz general, adica $at)
+#    # acum $t1 = 0x3f000000 (i.e. nr. 1056964608 reprezentat ca intreg)
+#    #  (deci s-a copiat config. binara din $f1 in $t0, fara conversie de la
+#    #  formatul in virgula mobila la cel de intreg)
+#   li $t1,1061158912
+#    # 1061158912 se reprezinta ca intreg pe un word astfel: 0x3f400000
+#   mtc1 $t1, $f2
+#    # instr. echiv. cu: mtc1 $t1, $2
+#    #  (se ia reg. 2 din coprocesorul de virgula mobila, adica $f2, nu cel
+#    #  de uz general, adica $v0)
+#    # acum $f2 = 0x3f400000 (i.e. nr. 0.75 reprezentat ca single)
+#    #  (deci s-a copiat config. binara din $t1 in $f2, fara conversie de la
+#    #  formatul de intreg la cel in virgula mobila)
+#   li $v0,10
+#   syscall
+
+mfc1.d/mtc1.d  reg,  FReg
+
+## muta double din / in coprocesorul de virgula mobila;
+## efectueaza:
+#  mfc1.d: copiaza double-ul din perechea de registri (FReg, FReg+1)
+#   ai coprocesorului de virgula mobila in perechea de registri (reg, reg+1)
+#   ai CPU;
+#  mtc1.d: copiaza double-ul din perechea de registri (reg, reg+1) ai CPU
+#   in perechea de registri (FReg, FReg+1) ai coprocesorului de virgula
+#   mobila;
+#  practic se copiaza (fara conversie intre formatele de flotant si intreg)
+#   un word intre FReg si reg si un word intre FReg+1 in reg+1;
+#  de asemenea, am observat ca nu este necesar ca FReg sa fie de cod par;
+#  registrii pot fi indicati prin $cod sau $nume, avand grija se se
+#   foloseasca numele specifice registrilor din UCP sau coprocesorul 1 - de
+#   ex. reg $8 al UCP este $t0 iar reg. $8 al coprocesorului de virgula
+#   mobila este $f8;
+## toate sunt pseudoinstructiuni;
+## exemplu:
+#   mfc1.d  $t0,  $f2
+#  efectueaza: $t0 <- $f2, $t1 <- $f3
+#  (copiere de config. word, fara conversii)
+
+c.eq.s/c.eq.d   cc   FRsrc1,   FRsrc2
+c.le.s/c.le.d   cc   FRsrc1,   FRsrc2
+c.lt.s/c.lt.d   cc   FRsrc1,   FRsrc2
+
+## teste cu setarea flag-ului cc;
+## efectueaza: test daca valorile continute in FRsrc1, FRsrc2 sunt in relatia
+#   = (eq), <= (le), < (lt),
+#   si seteaza flag-ul de cod cc (0 - 7) al coprocesorului 1 la valoarea 1
+#   (=adevarat)/0 (=fals); cc se poate omite si atunci se considera 0;
+## are format R cu: |  0x11  | 0x10/0x11 | FRSrc2 | FRsrc1 | cc | 0 |FC|  x |
+#                   ---------------------------------------------------------
+#                      6b         5b         5b       5b     3b  2b  2b  4b
+#  unde x este 0x2 (eq), 0xe (le), 0xc (lt),
+## testele cu PCSpim au aratat ca mereu se considera cc=0 si FC=11;
+## flagul setat de aceste instructiuni poate fi ulterior testat cu bcif,bc1t;
+
+bczt/bczf   cc   eticheta
+  (unde z este 0, 1, 2, 3 - practic, am constatat ca PCSpim accepta doar 1,2)
+## ramificare conditionata de flagul cc al coprocesorului z;
+## efect: daca flagul cc al coprocesorului z este 1 (true)/0 (false)
+#         atunci salt la eticheta
+## daca cc lipseste se considera 0;
+## format intern:   |  0x1z  |   8   |cc|1/0 |          depl          |
+#                   ---------------------------------------------------
+#                      6b       5b    3b  2b            16b
+#  unde depl este numarul de instructiuni masina (word-uri) peste care se
+#   sare, numarand inclusiv instructiunea bczt/bczf curenta - acest numar
+#   este determinat de compilator;
+## foarte utile sunt formele:
+#
+#     bc1t/bc1f eticheta
+#
+## care testeaza flagul 0 al coprocesorului 1 (coprocesorul de virgula
+#   mobila) iar daca este 1 (true)/0 (false) se sare la eticheta; cu
+#   aceste forme ale instructiunii putem face ramificari conditionate de
+#   rezultatul comparatiilor efectuate cu c.eq.s/c.eq.d/c.le.s/c.le.d/
+#   c.lt.s/c.lt.d;
+
+mov.s/mov.d   FRdest,   FRsrc
+
+## copiere single/double intre registri de virgula mobila
+## efectueaza: FRdest <- FRsrc
+## are format R cu: |  0x11  | 0x10/0x11 |   0   | FRsrc | FRdest |  0x6  |
+#                   -------------------------------------------------------
+#                      6b         5b         5b      5b      5b       6b
+
+movf.s/movf.d   FRdest,   FRsrc,   cc
+
+## copiere single/double intre registri de virgula mobila conditionata de un
+#    flag false;
+## efectueaza: daca flag-ul cc are valoarea 0 (false) atunci FRdest <- FRsrc;
+#  cc se poate omite si atunci se considera ca este vorba de flag-ul 0;
+## formatul intern: |  0x11  | 0x10/0x11 | cc | 0 | FRsrc | FRdest | 0x11 |
+#                   -------------------------------------------------------
+#                      6b         5b       3b  2b     5b      5b      6b
+
+movt.s/movt.d   FRdest,   FRsrc,   cc
+
+## copiere single/double intre registri de virgula mobila conditionata de un
+#    flag true;
+## efectueaza: daca flag-ul cc are valoarea 1 (true) atunci FRdest <- FRsrc;
+#  cc se poate omite si atunci se considera ca este vorba de flag-ul 0;
+## formatul intern: |  0x11  | 0x10/0x11 | cc | 1 | FRsrc | FRdest | 0x11 |
+#                   -------------------------------------------------------
+#                      6b         5b       3b  2b     5b      5b      6b
+
+ceil.w.s/ceil.w.d   FRdest,   FRsrc
+
+## ceil single/double;
+## efectueaza partea intreaga superioara (ceil) a lui FRsrc, o converteste
+#   intr-o valoare in virgula fixa pe 32 biti si o pune in FRdest;
+## are format R cu: |  0x11  | 0x10/0x11 |    0   | FRsrc  | FRdest |  0xe  |
+#                   ---------------------------------------------------------
+#                      6b         5b         5b       5b       5b       6b
+## practic am constatat ca valoarea intreaga pusa in FRdest este codificata
+#   ca intreg, nu ca un numar in virgula mobila
+
+floor.w.s/floor.w.d   FRdest,   FRsrc
+
+## floor single/double;
+## efectueaza partea intreaga inferioara (floor) a lui FRsrc, o converteste
+#   intr-o valoare in virgula fixa pe 32 biti si o pune in FRdest;
+## are format R cu: |  0x11  | 0x10/0x11 |    0   | FRsrc  | FRdest |  0xf  |
+#                   ---------------------------------------------------------
+#                      6b         5b         5b       5b       5b       6b
+## practic am constatat ca valoarea intreaga pusa in FRdest este codificata
+#   ca intreg, nu ca un numar in virgula mobila
+
+trunc.w.s/trunc.w.d   FRdest,   FRsrc
+
+## trunchiere single/double;
+## efectueaza calculul valorii trunchiate a lui FRsrc, o converteste
+#   intr-o valoare in virgula fixa pe 32 biti si o pune in FRdest;
+## are format R cu: |  0x11  | 0x10/0x11 |    0   | FRsrc  | FRdest |  0xd  |
+#                   ---------------------------------------------------------
+#                      6b         5b         5b       5b       5b       6b
+## practic am constatat ca valoarea intreaga pusa in FRdest este codificata
+#   ca intreg, nu ca un numar in virgula mobila
+
+round.w.s/round.w.d   FRdest,   FRsrc
+
+## rotunjire single/double;
+## efectueaza calculul valorii rotunjite a lui FRsrc, o converteste
+#   intr-o valoare in virgula fixa pe 32 biti si o pune in FRdest;
+## are format R cu: |  0x11  | 0x10/0x11 |    0   | FRsrc  | FRdest |  0xc  |
+#                   ---------------------------------------------------------
+#                      6b         5b         5b       5b       5b       6b
+## practic am constatat ca valoarea intreaga pusa in FRdest este codificata
+#   ca intreg, nu ca un numar in virgula mobila
+
+cvt.d.w/cvt.d.s   FRdest,   FRsrc
+
+## conversie intreg->double/single->double;
+## efectueaza: converteste intregul/single-ul (deci flotant in simpla
+#   precizie) din FRsrc intr-un double (deci flotant in dubla precizie) si-l
+#   pune in FRdest;
+## are format R cu: |  0x11  | 0x14/0x10 |    0   | FRsrc  | FRdest |  0x21 |
+#                   ---------------------------------------------------------
+#                      6b         5b         5b       5b       5b       6b
+
+cvt.s.w/cvt.s.d   FRdest,   FRsrc
+
+## conversie intreg->single/double->single;
+## efectueaza: converteste intregul/double-ul (deci in dubla precizie) din
+#   FRsrc intr-un single (deci flotant in simpla precizie) si-l pune in
+#   FRdest;
+## are format R cu: |  0x11  | 0x14/0x11 |    0   | FRsrc  | FRdest |  0x20 |
+#                   ---------------------------------------------------------
+#                      6b         5b         5b       5b       5b       6b
+
+cvt.w.s/cvt.w.d   FRdest,   FRsrc
+
+## conversie double->intreg/single->intreg;
+## efectueaza: converteste double-ul/single-ul din FRsrc intr-un intreg si-l
+#   pune in FRdest;
+## are format R cu: |  0x11  | 0x10/0x11 |    0   | FRsrc  | FRdest |  0x24 |
+#                   ---------------------------------------------------------
+#                      6b         5b         5b       5b       5b       6b
+
+Practic am constatat ca la toate instructiunile "cvt" ce fac conversie in/din
+intreg, valoarea intreaga (dpv. matematic) destinatie/sursa este codificata
+in registrul respectiv ca intreg, nu ca numar in virgula mobila.
+
+abs.s/abs.d   FRdest,   FRsrc
+
+## valoare absoluta single/double;
+## efectueaza: FRdest <- |FRsrc|;
+## are format R cu: |  0x11  | 0x10/0x11 |   0   | FRsrc | FRdest |  0x5  |
+#                   -------------------------------------------------------
+#                      6b         5b         5b      5b      5b       6b
+
+neg.s/neg.d   FRdest,   FRsrc
+
+## opusul single/double;
+## efectueaza: FRdest <- - FRsrc;
+#  avand in vedere modul de reprezentare a numerelor in virgula mobila,
+#    practic configuratia destinatie difera de cea sursa doar prin bitul cel
+#    mai semnificativ (care se inlocuieste cu negatul sau);
+## are format R cu: |  0x11  | 0x10/0x11 |   0   | FRsrc | FRdest |  0x7  |
+#                   -------------------------------------------------------
+#                      6b         5b         5b      5b      5b       6b
+
+add.s/add.d   FRdest,   FRsrc1,   FRsrc2
+
+## adunare single/double;
+## efectueaza: FRdest <- FRsrc1 + FRsrc2;
+## are format R cu: |  0x11  | 0x10/0x11 | FRsrc2 | FRsrc1 | FRdest |   0   |
+#                   ---------------------------------------------------------
+#                      6b         5b         5b       5b       5b       6b
+
+sub.s/sub.d   FRdest,   FRsrc1,   FRsrc2
+
+## scadere single/double;
+## efectueaza: FRdest <- FRsrc1 - FRsrc2;
+## are format R cu: |  0x11  | 0x10/0x11 | FRsrc2 | FRsrc1 | FRdest |  0x1  |
+#                   ---------------------------------------------------------
+#                      6b         5b         5b       5b       5b       6b
+
+mul.s/mul.d   FRdest,   FRsrc1,   FRsrc2
+
+## inmultire intre doua single/double
+## efectueaza: FRdest <- Frsrc1 * Frsrc2
+## are format R cu: |  0x11  | 0x10/0x11 | FRsrc2 | FRsrc1 | FRdest |  0x2  |
+#                   ---------------------------------------------------------
+#                      6b         5b         5b       5b       5b       6b
+
+div.s/div.d   FRdest,   FRsrc1,   FRsrc2
+
+## impartire intre doua single/double
+## efectueaza: pune in FRdest catul exact (ca single/double) impartirii lui
+#   FRsrc1 la FRsrc2
+## are format R cu: |  0x11  | 0x10/0x11 | FRsrc2 | FRsrc1 | FRdest |  0x3  |
+#                   ---------------------------------------------------------
+#                      6b         5b         5b       5b       5b       6b
+
+sqrt.s/sqrt.d   FRdest,   FRsrc
+
+## radacina patrata single/double;
+## efectueaza: FRdest <- radacina patrata a lui FRsrc;
+## are format R cu: |  0x11  | 0x10/0x11 |   0   | FRsrc | FRdest |  0x4  |
+#                   -------------------------------------------------------
+#                      6b         5b         5b      5b      5b       6b
+
+* Alte instructiuni:
+
+rfe
+
+## intoarcere din exceptie;
+## efectueaza: reface regsitrul de stare;
+## format intern: 0x42000010
+
+syscall
+
+## apel sistem;
+## efectueaza: apeleaza rutina sistemului de operare;
+#  cu ajutorul ei se pot accesa resurse aflate in gestiunea sistemului de
+#   operare, de ex. consola;
+#  inainte de apel se incarca diversi parametri in anumiti registri; de
+#   exemplu in $v0 se va incarca numarul apelului sistem dorit;
+#  detalii in sectiunea E ("Apeluri sistem");
+## format intern: 0x0000000c
+
+break cod
+
+## intrerupere;
+## efectueaza: apeleaza codul de exceptie (din sistemul de operare) cu
+#   numarul "cod"; exceptia 1 este rezervata depanatorului;
+## format intern:
+#                   |    0   |           cod             |    0   |  0xd  |
+#                   -------------------------------------------------------
+#                     6 biti            15 biti             5 biti  6 biti
+
+nop
+
+## nici o operatie;
+## efectueaza: nimic;

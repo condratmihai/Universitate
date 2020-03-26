@@ -1,0 +1,180 @@
+structura if-then-else:
+
+if(x[i] == y)
+ {z = 1; t = 2;}
+else
+ z = 10;
+
+se translateaza in:
+
+lw $t0,i
+sll $t0,$t0,2 # shift. la stanga cu 2 echivaleaza cu inmult. cu 2^2=4
+lw $t0,x($t0)
+lw $t1,y
+beq $t0,$t1 et1
+  li $t0,10 # ramura else
+  sw $t0,z
+  b et2     # sar peste ramura then
+et1:
+  li $t0,1  # ramura then
+  sw $t0,z
+  li $t0,2
+  sw $t0,t
+et2:
+
+structura if-then:
+
+if(x[i] == y)
+ {z = 1; t = 2;}
+
+se translateaza in:
+
+lw $t0,i
+sll $t0,$t0,2
+lw $t0,x($t0)
+lw $t1,y
+bne $t0,$t1,et  # testam de fapt negarea conditiei
+  li $t0,1  # ramura then
+  sw $t0,z
+  li $t0,2
+  sw $t0,t
+et:
+
+structura while:
+
+while(x <= y){
+  z=z+x;
+  ++x;
+}
+
+se translateaza in:
+
+et1:
+lw $t0,x
+lw $t1,y
+bgt $t0,$t1,et2 # testam de fapt negarea conditiei
+  lw $t0,z
+  lw $t1,x
+  add $t0,$t0,$t1
+  sw $t0,z
+  lw $t0,x
+  addi $t0,$t0,1
+  sw $t0,x
+b et1
+et2:
+
+structura do:
+
+do{
+  z=z+x;
+  ++x;
+}while(x <= y)
+
+se translateaza in:
+
+et:
+  lw $t0,z
+  lw $t1,x
+  add $t0,$t0,$t1
+  sw $t0,z
+  lw $t0,x
+  addi $t0,$t0,1
+  sw $t0,x
+lw $t0,x
+lw $t1,y
+ble $t0,$t1,et
+
+structura for:
+
+for(i=0; i<n; ++i){
+  z=z+x[i];
+  y=y+i;
+}
+
+se translateaza in:
+
+li $t0,0
+sw $t0,i         # i=0;
+et1:
+lw $t0,i
+lw $t1,n
+bge $t0,$t1,et2  # testul i<n (testam de fapt i>=n)
+  lw $t0,z
+  lw $t1,i
+  sll $t1,$t1,2
+  lw $t1,x($t1)
+  add $t0,$t0,$t1
+  sw $t0,z
+  lw $t0,y
+  lw $t1,i
+  add $t0,$t0,$t1
+  sw $t0,y
+lw $t0,i
+addi $t0,$t0,1
+sw $t0,i         # ++i
+b et1
+et2:
+
+structura switch (se poate simula prin generalizarea lui if-then-else, dar
+ vom arata o alta varianta):
+
+switch(k){
+ case 1: x=x+2; break;
+ case 2: x=x+y; ++y; break;
+ case 3: ++x; break;
+ default: x=0;
+}
+
+se translateaza in:
+
+.data
+etichete: .word et1, et2, et3  # vector cu adresele ramurilor switch
+.text
+lw $t0,k
+li $t1,1
+blt $t0,$t1,etd # daca k<1 execut default
+li $t1,3
+bgt $t0,$t1,etd # daca k>3 execut default
+li $t1,1
+subu $t0,$t0,$t1  # translatez k a.i. sa fie indici 0, .., 2 in vt."etichete"
+sll $t0,$t0,2    # * 2^2
+lw $t0,etichete($t0)  # acum $t0 contine adr. coresp. et1, et2 sau et3
+jr $t0
+et1:
+  lw $t0,x
+  addi $t0,$t0,2
+  sw $t0,x
+b ete # ies din switch (break)
+et2:
+  lw $t0,x
+  lw $t1,y
+  add $t0,$t0,$t1
+  sw $t0,x
+  lw $t0,y
+  addi $t0,$t0,1
+  sw $t0,y
+b ete # ies din switch (break)
+et3:
+  lw $t0,x
+  addi $t0,$t0,1
+  sw $t0,x
+b ete # ies din switch (break)
+etd: # ramura default
+ li $t0,0
+ sw $t0,x
+ete:
+
+Observatii:
+- daca o ramura nu are break, din ea va lipsi "b ete"; daca nu avem
+ ramura default, vor lipsi liniile "etd:", "li $t0,0", "sw $t0,x" iar
+ ramificarile la "etd" vor fi facute la "ete";
+- modul de simulare al structurii switch de mai sus (bazat pe metoda
+ salturilor indirecte - a se vedea lectia 3) are dezavantajul ca valorile
+ din lista switch trebuie sa fie succesive;
+  in schimb, simularea structurii switch cu ramificari imbricate (care
+ generalizeaza ce am facut la if-then-else) are dezavantajul ca se pot face
+ multe comparatii inainte de a se decide care ramura trebuie executata.
+
+In exemplele de mai sus codul MIPS echivalent se poate face mai eficient daca
+ nu mai (re)incarcam variabilele x, y, z din memorie in regsitri de fiecare
+ data.

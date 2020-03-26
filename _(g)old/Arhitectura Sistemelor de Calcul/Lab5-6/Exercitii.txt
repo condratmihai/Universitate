@@ -1,0 +1,416 @@
+III.1) (puncte - vezi in text) (*)
+a) (1 punct)
+  Functie "sign" ce primeste un parametru word x si returneaza (prin $v0)
+   valoarea 1 daca x>0, 0 daca x=0, -1 daca x<0. Program ilustrativ.
+b) (1 punct)
+  Acelasi lucru ca la (a) dar cu retur prin stiva.
+c) (1 punct)
+  Acelasi lucru ca la (a) dar cu un macro.
+
+III.2) (puncte - vezi in text) (*)
+a) (1.5 puncte)
+  Functie MIPS ce implementeaza functia C "memcpy":
+
+     void *memcpy(void *dest, const void *src, size_t n);
+
+ care copiaza a "n" octeti de la adresa "src" la adresa "dest" si returneaza
+ "dest" (putem considera "src" si "dest" adrese obisnuite si "n" word).
+ Program ilustrativ care copiaza continutul unui vect. de word-uri in altul.
+b) (1 punct)
+  Acelasi lucru cu un macro.
+
+III.3) (2 puncte) (*)
+
+ Translatati in MIPS urmatorul program C (el contine o procedura ce afisaza
+  frecventa valorilor dintr-un vector de numere de o cifra):
+
+  #include<stdio.h>
+
+  void frecv(int *v, int n){
+    int f[10], k;     /* var. k si vect. f se vor aloca automatic pe stiva */
+    register int i,j; /* i si j se vor aloca in registri */
+    for(i=0;i<10;++i) f[i]=0;
+    for(i=0;i<n;++i) if(0<=v[i] && v[i]<10) ++f[v[i]];
+    k=0; for(i=0;i<10;++i) if(f[i]!=0)++k;
+    for(i=0;i<10;++i){
+      printf("%d",f[i]);    /* se va folosi syscall, functia print int */
+      printf(" ");          /* se va folosi syscall, functia print string */
+    }
+    printf("%d",k);         /* se va folosi syscall, functia print int */
+    printf("\n");           /* se va folosi syscall, functia print string */
+  }
+
+  int x[7]={1,2,3,3,3,1,5};
+
+  void main(){
+    frecv(x,7);
+  }
+
+  /* se va afisa: 0, 2, 1, 3, 0, 1, 0, 0, 0, 0, 4
+     deoarece 0 apare de 0 ori, 1 de 2 ori, 2 o data, 3 de 3 ori, ...,
+     9 de 0 ori si sunt 4 frecvente nenule */
+
+III.4) (puncte - vezi in text) (*)
+a) (3.5 puncte)
+  Functie C(n,k) recursiva ce calculeaza combinari de n luate cate k dupa
+   formula: C(0,0) = C(1,0) = 0, C(n,k) = C(n,k-1) + C(n-1,k-1). Program
+   ilustrativ.
+b) (3.5 puncte)
+  Acelasi lucru cu un macro recursiv (si retur prin $v0).
+
+III.5) (3.5 puncte)
+ Functie ce primeste ca parametru un numar natural n si un caracter c si
+returneaza un string (construit in stiva) ce contine de n ori caracterul c
+si un caracter nul la sfarsit.
+ Program ilustrativ in care n si c sunt date prin variabile initializate, iar
+in programul principal se apeleaza functia, apoi stringul returnat este
+extras din stiva si copiat intr-o variabila statica de tip .space (inclusiv
+caracterul nul de la sfarsit), apoi este afisat la consola.
+
+III.6) (1.5 puncte)
+ Translatati in MIPS urmatorul program C (respectand conventiile C):
+
+  #include<stdarg.h>
+  void aduna(int *a, int n, ...){
+    register int i;
+    va_list l;
+    va_start(l,n);
+    *a=0;
+    for(i=0;i<n;++i) *a+=va_arg(l, int);
+    va_end(l);
+  }
+  int s, s1;
+  void main(){
+    aduna(&s,3,1,2,3);    /* obtinem s=6 */
+    aduna(&s1,2,10,20);   /* obtinem s1=30 */
+  }
+
+ (i nu va fi alocat automatic ci pentru el se va folosi un registru).
+
+III.7) (1.5 puncte)
+ Scrieti o functie pentru adunarea unui sir de numere, cu numar variabil de
+parametri (parametrii sunt numarul numerelor si apoi numerele) si retur prin
+stiva. Program ilustrativ. Indicatie: adaptam programul de la III.6.
+
+III.8) (3 puncte) (*)
+ Translatati in MIPS urmatorul program C:
+
+  int aplica(int (*f)(int), int x){
+    return (*f)(x);
+  }
+
+  int f1(int y){return y+y;}
+  int f2(int y){return y*y;}
+  int f3(int y){return -y;}
+
+  int (*vf[])={f1, f2, f3}, v[3];
+
+  void main(){
+    register int i;
+    for(i=0;i<3;++i) v[i]=aplica(vf[i],1+i);
+  }
+
+  /* in final v[0]=2, v[1]=4, v[2]=-3 */
+
+III.9) (1.5 puncte) (*)
+ Translatati in MIPS urmatorul program C (ce contine o procedura care pune
+  bitii dintr-un intreg intr-un string sub forma de caractere '1' sau '0'):
+
+  #include<stdio.h>
+
+  void bts(int n, char *s){
+    register int i;
+    for(i=0;i<8*sizeof(int);++i) if(n & (1<<i)) s[i]='1'; else s[i]='0';
+    s[8*sizeof(int)]='\0';
+     /* in MIPS in loc de 8*sizeof(int) vom pune 32 */
+  }
+
+  void main(){
+    int x=259;
+    char y[100];      /* in MIPS vom pune .space 100 */
+    bts(x,y);
+    printf("%s\n",y); /* se va folosi syscall, functia print string */
+  }
+
+  /* in MIPS se va afisa: 11000000100000000000000000000000 */
+
+III.10) (puncte - vezi in text) (*)
+a) (3.5 puncte)
+  Functie MIPS ce implementeaza functia C "atoi" (cu retur prin $v0):
+
+    int atoi(const char *s);
+
+ care returneaza intregul a carui reprezentare externa zecimala este
+ continuta in stringul "s" (putem considera "s" o adresa obisnuita);
+ presupunem stringul "s" corect construit (si terminat prin caracterul nul);
+ de exemplu atoi("12") returneaza int-ul 12. Program ilustrativ.
+b) (1 punct)
+  Acelasi lucru cu un macro.
+
+III.11) (puncte - vezi in text) (*)
+a) (3 puncte)
+  Procedura pentru sortarea unui vector de word prin metoda Bubble sort;
+   procedura primeste ca parametri adresa de inceput a vectorului si numarul
+   elementelor sale. Program ilustrativ.
+b) (1 punct)
+  Acelasi lucru cu un macro.
+
+III.12) (1.5 puncte) (*)
+ Functie recursiva ce returneaza (in $v0) suma cifrelor in baza 10 ale unui
+word dat ca parametru.
+ Ideea recursiei: s(0) = 0, altfel s(n) = n mod 10 + s(n div 10).
+ Program ilustrativ.
+
+III.13) (puncte - vezi in text) (*)
+a) (1 punct)
+  Functie MIPS ce implementeaza functia C "strlen" (cu retur prin $v0):
+
+    size_t strlen(const char *s);
+
+ care returneaza lungimea stringului pointat de "s", fara a numara
+ terminatorul nul (putem considera "s" adresa obisnuita iar valoarea
+ returnata int).
+  Program ilustrativ.
+b) (1 punct)
+  Acelasi lucru cu un macro.
+
+III.14) (puncte - vezi in text) (*)
+a) (2.5 puncte)
+  Functie MIPS ce implementeaza functia C "strcmp" (cu retur prin $v0):
+
+    int strcmp(const char *s1, const char *s2);
+
+ care compara lexicografic doua stringuri (pointate de "s1" si "s2") si
+ returneaza o valoare <0 daca primul string este < al doilea, ==0 daca
+ primul string este == al doilea si >0 daca primul string este > al doilea
+ (putem considera "s1" si "s2" adrese obisnuite).
+  Program ilustrativ.
+b) (1 punct)
+  Acelasi lucru cu un macro.
+
+III.15) (puncte - vezi in text) (*)
+a) (2 puncte)
+  Functie MIPS ce implementeaza functia C "strrev" (fara retur):
+
+    char *strrev(char *s);
+
+ care inverseaza ordinea caracterelor din stringul pointat de "s", in afara
+ de terminatorul nul  (putem considera "s" adresa obisnuita iar valoarea
+ returnata void).
+   Program ilustrativ.
+b) (1 punct)
+  Acelasi lucru cu un macro.
+
+III.16) (puncte - vezi in text) (*)
+a) (1.5 puncte)
+  Procedura ce primeste ca parametri adresele de inceput a doua stringuri
+   si il copiaza pe primul in al doilea inlocuind toate literele mici cu mari
+   (restul caracterelor se copiaza neschimbate); stringul sursa se considera
+   terminat cu 0. Program ilustrativ.
+b) (1 punct)
+  Acelasi lucru ca la (a) dar cu un macro.
+c) (3 puncte)
+  Acelasi lucru ca la (a) dar procedura are doar un parametru, pt. stringul
+   sursa, stringul destinatie este returnat prin stiva.
+
+III.17) (puncte - vezi in text) (*)
+a) (1.5 puncte)
+  Functie (nerecursiva) ce primeste ca parametri adresa de inceput si nr.
+   elementelor unui vector de word si returneaza max. elementelor sale.
+   Program ilustrativ.
+b) (3 puncte)
+  Acelasi lucru ca la (a) dar cu o functie recursiva; ideea recursiei:
+   * daca vectorul are un element, el este max.;
+   * daca vectorul are mai multe elemente, se imparte in doua, se afla max.
+      din fiecare jumatate (apeland recursiv functia) si se ret. max. celor
+      doua max.;
+   functia primeste ca par. adresa de inceput a bucatii analizate si lungimea
+   ei si ret. max. elementelor din bucata respectiva.
+c) (1 punct)
+  Acelasi lucru ca la (a) dar cu un macro.
+
+III.18) (puncte - vezi in text) (*)
+a) (2 puncte )
+  Procedura recursiva ce transforma un vector de word a.i. la inceput sa
+   apara elem. sale impare in aceeasi ordine ca in vecorul initial, apoi
+   elem. sale pare in ordinea inversa fata de vectorul initial. Parametri:
+   adr. de inceput a vect. sursa, adr. vect. destinatie, nr. de elem. ale
+   vect. sursa. Ideea recursiei: se foloseste o var. locala automatica; la
+   fiecare apel se ia cate un word din vectorul sursa si:
+    - daca e impar se scrie in vectorul destinatie, apoi se apeleaza recursiv
+       pt. restul vectorului sursa;
+    - daca e par se retine in var. locala apelului, se apeleaza recursiv pt.
+       restul vectorului sursa, apoi (la revenirea din recursie) se scrie in
+       vect. destinatie valoarea salvata.
+   Ex: 1, 2, 7, 8, 2, 5, 6, 1, 5, 4, 3  --> 1, 7, 5, 1, 5, 3, 4, 6, 2, 8, 2
+b) (2 puncte)
+  Acelasi lucru cu un macro recursiv.
+
+III.19) (8 puncte) (*)
+  Procedura ce transforma o expresie din forma infixata in forma sufixata
+   (forma poloneza inversa); expresia poate contine operanzi litera mica,
+   operatori aditivi '+', '-', operatori multiplicativi '*', '/' si paranteze
+   '(', ')'; toti operatorii sunt binari, cei aditivi avand prioritate mai
+   mica decat cei multiplicativi; exemplu de transformare:
+
+    sursa: '(a+b)*(a-c)+a' -> 'ab+ac-*a+'
+
+   expresia sursa se considera data intr-un string declarat cu initializare,
+   cea destinatie intr-un string declarat fara initializare (.space);
+   expresia sursa se considera scrisa corect; procedura va opera asupra celor
+   doua stringuri ca date globale si va primi ca parametru nivelul
+   prioritatii (adica daca la apelul curent se trateaza o operatie aditiva,
+   multiplicativa, etc.).
+  Ideea recursiei urmareste definitia recursiva a unei expresii infixate:
+
+   <expresie> ::= <termen> | <termen> <op_aditiva> <expresie>
+   <termen>   ::= <factor> | <factor> <op_multiplicativa> <termen>
+   <factor>   ::= <litera> | (<expresie>)
+
+   in functie de parametrul - nivel procedura va urmari cate una din cele
+   trei definitii.
+  Indicatie: sirul sursa se citeste liniar, caracter cu caracter, folosind o
+   variabila globala "c"; la fiecare apel se va procesa cate un car. "c" din
+   sirul sursa; acest caracter este "citit" in codul apelant (deci primul
+   caracter este citit in programul principal); la sfarsitul unui apel se va
+   citi caracterul care se va procesa dupa revenire; de exemplu un apel de
+   nivel 1 (expresie) va proceda astfel:
+   - apel recursiv cu nivel 2 (caracterul curent "c", citit deja, se transm.
+      apelului imbricat - intr-adevar, primul caracter dintr-o expresie este
+      primul caracter din primlul termen al expresiei); conform conventiei,
+      la iesirea din apelul imbricat este deja citit noul "c";
+   - daca "c" este '+' sau '-', se salveaza intr-o var. locala automatica "k"
+      (fiecare apel are deci propria instanta a lui "k"), se mai citeste un
+      "c",  se apeleaza recursiv cu acelasi nivel 1, la revenire se scrie "k"
+      in sirul destinatie (apelul imbricat va furniza si un nou car. "c"),
+      apoi se iese;
+   - daca nu, se iese (si "c" va fi prelucrat in alta parte).
+   In loc de o variabila globala "c" se poate parcurge sirul sursa cu un
+   registru; sirul destinatie se poate parcurge de asemenea cu un registru
+   (el este construit tot liniar).
+  Program ilustrativ.
+
+III.20) (8 puncte)
+ Program pentru sortarea unui vector de word (declarat cu initializare in
+program) prin metoda Qsort, folosind o procedura recursiva; interactiunea
+dintre procedura si program se va face doar prin parametri/valoare returnata
+(nu prin variabile globale).
+
+III.21) (1.5 puncte)
+ Procedura de interclasare a doi vectori sortati de word; parametri: adresele
+de inceput ale celur doi vectori sursa si a vectorului destinatie si nr.
+elementelor celor doi vectori sursa (deci 5 parametri); functia returneaza
+(prin $v0) nr. elementelor vectorului destinatie. Program ilustrativ.
+
+III.22) (puncte - vezi in text) (*)
+a) (1.5 puncte)
+  Functie MIPS ce implementeaza functia C "strset" (cu retur prin $v0):
+
+    char *strset(char *s, int ch);
+
+ care seteaza toate caracterele din stringul pointat de "s", in afara
+ de terminatorul nul, la valoarea "ch", apoi returneaza "s" (putem considera
+ "s" si returul ca fiind adrese obisnuite).
+   Program ilustrativ.
+b) (1 punct)
+  Acelasi lucru cu un macro.
+
+III.23) (puncte - vezi in text) (*)
+a) (1.5 puncte)
+  Functie MIPS ce implementeaza functia C "strcat" (cu retur prin $v0):
+
+    char *strcat(char *dest, const char *src);
+
+ care concateneaza o copie a stringului pointat de "src" la sfarsitul
+ stringului pointat de "dest" (suprascriind caracterul nul de la sfarsitul
+ stringului pointat de "dest", a.i. in final sa rezulte un string mai lung)
+ si returneaza "dest" (putem considera "dest", "src" si returul ca fiind
+ adrese obisnuite).
+   Program ilustrativ.
+b) (1 punct)
+  Acelasi lucru cu un macro.
+
+III.24) (puncte - vezi in text) (*)
+a) (3.5 puncte)
+  Functie MIPS ce implementeaza functia C "strstr" (cu retur prin $v0):
+
+    char *strstr(const char *s1, const char *s2);
+
+ care cauta in stringul pointat de "s1" prima aparitie ca substring a
+ stringului pointat de "s2" si returneaza adresa de unde incepe aceasta
+ aparitie sau NULL (0) daca nu exista nici o aparitie (putem considera "s1",
+ "s2" si returul ca fiind adrese obisnuite).
+   Program ilustrativ.
+b) (1 punct)
+  Acelasi lucru cu un macro.
+
+III.25) (5 puncte)
+  Functie MIPS ce implementeaza functia C "sscanf" (doar cu formatele "%d" si
+   "%s" si fara alte caractere in stringul de format). Program ilustrativ.
+
+III.26) (20 puncte)
+ Implementati un alocator de memorie astfel:
+- declarati in zona ".data":
+ * o zona mare "mem" (.space) din care ulterior se vor aloca diverse bucati;
+ * un vector "log" (declarat initial tot cu .space, dar folosit ulterior ca
+   vector de word), in care se vor inregistra adresele bucatilor alocate si
+   lungimile lor;
+ * alte variabile necesare gestionarii vectorilor de mai sus (de ex. pt. a
+   retine dimensiunile lor si pana unde s-au ocupat);
+- scrieti doua functii:
+   "malloc" - primeste ca parametru un word "d", gaseste in "mem" o zona
+     nerezervata de "d" octeti, o rezerva (adaugand la "log" doua worduri -
+     offsetul zonei fata de inceputul vectorului si dimensiunea ei "d"), si
+     returneaza (prin $v0) adresa ei de memorie; daca nu exista o zona libera
+     de dimensiunea ceruta nu rezerva nimic si ret. 0;
+   "free" - primeste ca parametru un word, desemnand o adresa de memorie
+     (care se doreste a fi din zona de date statice, unde se afla "mem"),
+     cauta in "log" inregistrarea ce corespunde acestei adrese, o elimina,
+     apoi translateaza celelalte inregistrari (sau o pune pe ultima in locul
+     celei eliminate); daca nu exista o asemenea inregistrare, nu face nimic;
+   eventual (pentru inca 10 puncte) "compact" - translateaza zonele alocate
+     in "mem" si modifica inregistrarile corespunzatoare in "log" a.i. zonele
+     alocate sa fie adiacente.
+Program ilustrativ.
+
+III.27) (12 puncte)
+  Folosind metoda salturilor indirecte emulati un interpretor de comenzi de
+ tip "command.com" ca in exemplul de la sectiunea 1h, dar care sa accepte
+ si comenzi cu argumente. Mai exact, comenzile acceptate la intrare si
+ rezultatul scris la iesire in fiecare caz sunt:
+
+  "a nr1 nr2 ... nrn" (adunare, n>=1) --> scrie suma nr1+...+nrn
+  "s nr1 nr2" --> scrie diferenta nr1-nr2
+  "n nr" --> scrie opusul -nr
+
+ in cele de mai sus, "nr", "nri" sunt intregi byte, iar intre componentele
+ comenzilor (nume, nr-uri) sunt caractere blank; fiecare comanda va fi
+ implementata printr-o procedura cu parametri (adunarea are numar variabil
+ de parametri);
+  vor fi implementate doua comenzi suplimentare, care nu vor putea aparea
+ in fluxul de intrare si care se vor executa automat atunci cand vor fi
+ intrunite anumite conditii: o comanda de eroare, care scrie la iesire un
+ caracter "e", si o comanda de terminare, a carei efect este terminarea
+ programului.
+  Fluxul de intrare va fi un string ce contine comenzi separate prin
+ caractere <LF> (cod ASCII zecimal 10) iar la sfarsit un caracter <EOF>
+ (cod ASCII zecimal 26); fluxul de iesire va fi un string ce va contine
+ rezultatele scrise de comenzi, separate prin caractere <LF>.
+  Programul va parcurge liniar fluxul (stringul) de intrare procesand
+ succesiv comenzile; pentru fiecare comanda corecta va executa procedura
+ care o implementeaza si care va scrie la iesire rezultatul comenzii si un
+ <LF>; pentru fiecare comanda eronata va executa automat comanda (procedura)
+ de eroare, care va scrie la iesire un "e"; la intalnirea lui <EOF> va
+ executa automat comanda (procedura) de terminare a programului.
+  De exemplu daca stringul de intrare contine:
+
+  "a 1 2 3<LF>s 30 10<LF>a 100 200<LF>s 20<LF>n 1<LF><EOF>"
+
+ atunci stringul de iesire va contine:
+
+  "6<LF>20<LF>300<LF>e<LF>ff<LF>"
+
+III.28) (6 puncte daca s-a facut problema III.27 sau 14 puncte daca nu)
+  Ca la problema III.27, dar comenzile se citesc de la consola interactiv,
+   iar rezultatele se afisaza tot la consola, dupa fiecare comanda (ca la
+   "command.com").

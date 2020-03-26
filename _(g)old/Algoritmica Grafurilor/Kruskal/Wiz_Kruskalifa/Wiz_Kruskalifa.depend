@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1559212368 source:c:\users\condr\downloads\to-do\ag\kruskal\wiz_kruskalifa\main.cpp
+	<iostream>
+	<fstream>
+	<cstdio>
+	<vector>
+	<algorithm>
+

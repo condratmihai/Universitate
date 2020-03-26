@@ -1,0 +1,60 @@
+Observatii!
+
+a) Variabilele globale si eventualele mesaje de afisare vor fi singurele salvate in zona de date.
+b) Variabilele locale din main vor fi interpretate ca registri.
+c) Variabilele locale din functii vor fi salvate pe stiva.
+d) Se vor salva registrii callee-saved si caller-saved (in concordanta cu conventiile MIPS) daca ulterior valoarea din registru este utilizata ( chiar daca nu este modificata in subrutina!)
+e) Transmiterea parametrilor se va face obligatoriu prin stiva. Metoda utilizata pentru returnarea valorilor ramane la alegerea voastra. 
+
+Ex1) Traduceti urmatorul program in limaj de asamblare MIPS.
+int array[6]; 
+
+int sum(int n)
+{
+	int s = 0;
+ 	int i;
+ 	for (i = 0; i < n; i ++)
+ 		s = s + array[i];
+	return s;
+}
+
+int main()
+{
+	int z = 1;
+	int i;
+	for (i = 0; i < 6; i++)
+ 		array[i] = i;
+	z = sum(6);
+	printf("%d",z);
+	return 0;
+}
+
+
+
+Ex2)
+int v[6];
+
+int g(int k, int i)
+{
+	int r = i + k;
+	if (r % 2 == 0)
+		return i * 3;
+	else
+		return (i * i + 2);
+} 
+
+inf main()
+{
+	int i = 0;	
+	int p = 1;
+	int k;
+	scanf("%d",k");
+ 	for (i = 0; i < 6; i++)
+ 		v[i] = g(k, i);
+ 	for (i = 0; i < 6; i++)
+ 		p = p * v[i];
+ 	printf("%d",p);
+	return 0;
+}
+
+

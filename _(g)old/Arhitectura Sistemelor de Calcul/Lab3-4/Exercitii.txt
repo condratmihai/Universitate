@@ -1,0 +1,313 @@
+II.1)
+ Program pentru calcularea celui de-al n-lea termen al sirului lui Fibonacci
+  (t1:=1, t2:=1, tn:=t(n-1)+t(n-2), pt. orice n>=3). Numarul n este dat
+  printr-o variabila declarata cu initializare in program. In plus, pentru
+  calcularea termenilor se vor folosi maxim trei alte variabile x,y,z
+  declarate in program si nu se va folosi stiva. In final valoarea ceruta
+  va fi stocata in z. Variabilele vor fi de tip word.
+
+II.2)
+ La fel ca la problema II.1, dar pentru calcularea termenilor se va folosi
+  stiva. In program vor fi declarate doar variabilele n (cu initializare)
+  si z. Variabila n va fi folosita doar pentru a da si eventual numara
+  iteratiile iar variabila z doar pentru a pune in ea la sfarsit termenul
+  cerut (toti termenii intermediari vor fi stocati in stiva).
+
+II.3)
+ Program care calculeaza suma divizorilor unui numar natural. Numarul este
+  dat intr-o variabila n de tip word declarata cu initializare in program;
+  suma va fi stocata in final intr-o variabila s de tip word.
+
+II.4)
+ Program care verifica daca un numar natural este prim. Numarul este dat
+  intr-o variabila n de tip word declarata cu initializare in program;
+  raspunsul va fi stocat intr-o variabila x de tip byte sub forma 0=neprim,
+  1=prim.
+
+II.5)
+ Program care verifica daca un numar natural este prim. Numarul este citit
+  interactiv de la consola sub forma:
+    Dati numarul: 5
+  iar rezultatul este afisat la consola sub forma:
+    Numarul 5 este prim.
+  La citire 5 este ce tastam noi; la afisare in loc de 5 se va afisa numarul
+  citit; daca nu e prim mesajul se va termina "... nu e prim".
+
+II.6)
+ Program care calculeaza suma cifrelor in baza 10 ale  unui numar natural.
+  Numarul este dat intr-o variabila n de tip word declarata cu initializare
+  in program; suma va fi stocata in final intr-o variabila s de tip word.
+
+II.7)
+  Citire/afisare interactiva a unui vector de nr. naturale.
+  Dialogul se va desfasura sub forma:
+   dati vactorul:
+   n=3
+   v[0]=1
+   v[1]=5
+   v[2]=3
+   am citit vectorul: 1, 5, 3
+  (ce e in dreapta lui "=" am tastat noi, restul e afisat de program).
+
+II.8)
+  Citire/afisare interactiva a unei matrici (intr-o forma analoaga celei de
+ la problema II.1).
+
+II.9)
+ Program care calculeaza factorialul unui numar natural. Numarul este
+  dat intr-o variabila n de tip word declarata cu initializare in program;
+  factorialul va fi stocata in final intr-o variabila s de tip word.
+
+II.10)
+ Program care calculeaza 1+2+...+n, unde n este o variabila word declarata
+  cu initializare (numar natural) in program. Suma va fi stocata in final
+  intr-o variabila s de tip word.
+
+II.11)
+ Program care calculeaza diferenta a doua numere intregi multioctet
+  folosind un ciclu. Numerele vor fi date prin cod, sub forma a doua
+  variabile x,y de tip byte initializate cu cate un sir de 5 octeti - ele
+  se vor scadea byte cu byte, cate o pereche la fiecare iteratie, cu
+  imprumut corespunzator pentru perechea urmatoare. Pentru stocarea
+  rezultatului se va declara o variabila z de tip .space 5. Numarul de
+  bytes (5) va fi dat intr-o variabila n declarata cu initializare si va
+  fi luat de acolo.
+
+II.12)
+ Ca la problema II.11, dar cu inmultire si impartire (doua programe).
+
+II.13)
+ Program pentru evaluarea unei expresii oarecare in forma postfixata (forma
+  postfixata pleaca de la reprezentarea operatiei ca functie cu numele
+  functiei la sfarsit x+y = (x,y)+ si eliminarea parantezelor si virgulei;
+  astfel (x+y)*z = xy+z* iar x*z+y*z = xz*yz*+).
+ Expresia are ca operanzi numere byte si ca operatori "+" si "-" binari.
+ Ea va fi data sub forma unei variabile .byte initializata la declarare cu
+  un sir de octeti ce contine expresia si se termina cu caracterul nul, de
+  exemplu expresia ((10 + 20) - (10 + 15)) - (4 - 3) va fi data prin:
+
+    e: .byte 10, 20, '+', 10, 15, '+', '-', 4, 3, '-', '-', 0
+
+ Algoritmul de evaluare este urmatorul:
+  (0) Notam cu i poz. curenta in e si cu e(i) byte-ul de la aceasta pozitie;
+  (a) i:=0
+  (b) Daca e(i)=0 salt la (f)
+  (c) Daca e(i)<>'+','-' (adica e operand) atunci push e(i)
+       si salt la (e)
+  (d) Daca e(i)='+' atunci pop doua valori, calc. suma lor, push rezultatul
+       si salt la (e)
+      Daca e(i)='-' atunci pop doua valori, calc. dif. lor, push rezultatul
+       si salt la (e)
+  (e) i:=i+1 si salt la (b)
+  (f) Pop o valoare (este rezultatul final al expresiei) si o salvez in x.
+
+II.14)
+ Ca la problema II.13, cu urmatoarele modificari:
+ Expresia poate contine doar operanzi de o cifra, este citita de la consola
+  ca un string (read string) si stocata intr-o variabila e initializata cu
+  .space 100 (in memorie ea va ajunge ca un string asciiz). Dupa citire,
+  stringul va fi transformat a.i. operanzii sa fie stocati sub forma valorii
+  lor matematice, nu a caracterelor care le reprezinta. In acest scop din
+  fiecare byte avand valori de la 48 la 57 (i.e. din fiecare carecter '0',
+  ...,'9') vom scadea 48. Apoi vom inlocui caracterul newline de la sfarsit
+  cu un caracter nul.
+ De exemplu expresia ((1 + 2) - (1 + 5)) - (4 - 3) va fi introdusa de la
+  tastatura sub forma stringului: 12+15+-43-- iar in memorie sa va stoca sub
+  forma vectorului de bytes: 49, 50, 43, 49, 53, 43, 45, 52, 51, 45, 45,
+  10, 0 (avand in vedere ca codurile ASCII zecimale ale caracterelor
+  implicate sunt: '1'->49, '2'->50, '3'->51, '4'->52, '5'->53, '+'->43,
+  '-'->45, newline->10, nul->0). Dupa transformare, ea va ajunge sub forma:
+  1, 2, 43, 1, 5, 43, 45, 4, 3, 45, 45, 0, 0.
+ Rezultatul final al expresiei va fi afisat pe consola (print int).
+
+II.15)
+ Program care calculeaza suma bitilor (numarul bitilor egali cu 1) din
+  reprezentarea interna a unui numar natural. Numarul este dat intr-o
+  variabila n de tip word declarata cu initializare in program; suma va fi
+  stocata in final intr-o variabila s de tip word. Se vor folosi op. de
+  shiftare si op. logice pentru a muta/selecta bitii.
+ Ex: nr. 11001000 00001111 00000011 00001101 --> suma bitilor = 12
+
+II.16)
+ Program care construieste imaginea in oglinda a configuratiei din locatia
+  unei variabile word declarata cu initializare in program; imaginea se va
+  construi in aceeasi locatie. Se vor folosi op. de shiftare, rotire,
+  logice.
+ Ex: nr. 11001000 00001111 00000000 00000001 -->
+         10000000 00000000 11110000 00010011
+
+II.17)
+ Program care roteste cu 1 la stanga in mod uniform bitii dintr-un sir de
+  octeti declarat si initializat in program ca vector de .byte (bitul
+  semnificativ care iese din octetul aflat la adresa n sa intre in bitul
+  zero al octetului aflat la adresa n+1).
+          rang 7      0 7      0 7      0
+ Exemplu:      10000001 10000010 11000100 --> 00000011 00000101 10001001
+           adr.1        2        3
+
+II.18)
+ Program care realizeaza adunarea a doua numere naturale word a+b (32 biti)
+  folosind op.logice si shiftari, conform urmatorului algoritm:
+  (a) fac c := a xor b si obtin cele 32 cifre ale sumei daca n-am tine cont
+       de transporturile de pe fiecare pozitie;
+  (b) fac d := a and b si obtin transporturile de la cele 32 poz. ale sumei
+       (acestea trebuie adunate la pozitii shiftate la stg. cu 1, dar pot
+        aparea noi transporturi)
+  (c) daca d=0...0, STOP (avem c=a+b)
+  (e) fac e := d shiftat la stg cu 1
+  (f) fac a:=c, b:=e si salt la (a)
+ Pentru simplitate putem considera a=$t0, b=$t1, suma=$t2; vom folosi cat mai
+  putine locatii suplimentare (c, d, e), iar acestea pot fi registrii, din
+  memorie sau din stiva.
+
+II.19)
+ Program care realizeaza inmultirea a doua numere naturale word a*b (fara
+  semn, 32 biti) folosind shiftari si adunari, conform urmatorului algoritm
+  (care se bazeaza pe scrierea lui a ca polinom in puterile lui 2 si apl.
+  distributivitatii, de ex. 10 * b = (2^3 + 2^1)*b = b*2^3 + b* 2^1):
+  (a) fac c := 0
+  (b) daca a=0, STOP (avem c=a*b)
+  (c) daca a impar (a and 0x1 != 0) fac c := c+b
+  (d) fac a:=a shiftat la dr. cu 1 (i.e. impart la 2),
+      fac b:=b shiftat la stg. cu 1 (i.e. inmultesc cu 2),
+      si salt la (b)
+ Pentru simplitate putem considera a=$t0, b=$t1, produsul=$t2, si ca
+  jumatatea superioara a lui $t0, $t1 este 0 (pentru ca rez. sa incapa in 32
+  biti); vom folosi cat mai putine locatii suplimentare, iar acestea pot fi
+  registrii, din memorie sau din stiva.
+
+II.20)
+ Program care determina calculeaza numarul elementelor nule ale unui vector
+  de bytes. Vectorul va fi dat sub forma unei variabile initializata la
+  declarare cu un sir de bytes, iar lungimea lui printr-o variabila
+  initializata de asemenea la declarare.
+
+II.21)
+ Program care calculeaza produsul scalar a doi vector de bytes (vectorii sunt
+  dati sub forma a doua variabile initializate la declarare cu cate un sir
+  de bytes, iar lungimea lor printr-o variabila initializata de asemenea la
+  declarare).
+
+II.22)
+ Program pentru sortarea unui vector de word. Vectorul va fi dat sub forma
+  unei variabile initializata la declarare cu un sir de word-uri, iar
+  lungimea lui printr-o variabila initializata de asemenea la declarare.
+  Vectorul sortat se va construi in aceeasi locatie ca vectorul sursa.
+
+II.23)
+ Program care determina elementele distincte dintr-un vector de word si
+  le pune intr-un nou vector. Vectorul sursa va fi dat sub forma unei
+  variabile initializata la declarare cu un sir de word-uri, iar lungimea
+  lui printr-o variabila initializata de asemenea la declarare. Pentru
+  vectorul rezultat se va declara o variabila .space (urmata de suficienti
+  bytes neinitializati).
+ Ex: 4, 2, 1, 2, 2, 1, 3 --> 4, 2, 1, 3
+
+II.24)
+ Program care caluleaza combinari de n luate cate k, folosind triunghiul
+  lui Pascal (construit cu ajutorul unui singur vector de n+1 locatii in care
+  se vor genera succesiv liniile din triunghi).
+ Numerele n si K sunt date sub forma a doua variabile declarate cu
+  initializare, iar pentru vectorul de lucru se va declara o variabila
+  urmata de un numar rezonabil de octeti neinitailizati.
+ Toate numerele vor fi de tip word.
+
+II.25)
+ Program care determina valoare unui polinom intr-un punct, folosind schema
+  lui Horner. Vectorul coeficientilor se va da sub forma unei variabile
+  byte initializata la declarare cu un sir de bytes, gradul si punctul se
+  vor da sub forma unor variabile byte declarate cu initializare.
+
+II.26)
+ Program de inmultire a doua matrici liniarizate. Matricile sursa se dau
+  sub forma unor variabile initializate la declarare cu siruri de word-uri,
+  dimensiunile lor se dau sub forma a trei variabile byte declarate cu
+  initializare, pentru matricea rezultat se va declara o variabila
+  urmata de un numar corespunzator de bytes neinitializati.
+
+II.27)
+ Program care calculeaza suma elementelor maxime ale coloanelor unei matrici
+  liniarizate (din fiecare coloana se ia cate un singur element maxim).
+  Matricea se da sub forma unei variabile initializate la declarare cu un
+  sir de word-uri, dimensiunile ei se dau sub forma a doua variabile word
+  declarate cu initializare.
+ Ex: 1 2 3
+     8 1 5 --> 8 + 2 + 5 = 15
+     1 2 4
+
+II.28)
+ Program care simuleaza functia "strncmp" din limbajul C.
+ Operatia se va aplica unor stringuri declarate cu initializare in program
+  (si terminate cu 0 - deci asciiz) iar raspunsul va fi stocat intr-o
+  variabila x de tip word sub forma: 1=mai mic, 0=egal, 2=mai mare.
+
+II.29)
+ Program care numara toate aparitiile unui sir ca subcuvant in alt sir.
+ Operatia se va aplica unor stringuri declarate cu initializare in program
+  (si terminat cu 0) iar raspunsul va fi stocat intr-o var. n de tip word.
+
+II.30)
+ Program care construieste imaginea in oglinda a unui sir (imaginea se va
+  construi in aceeasi locatie). Operatia se va aplica unui string citit
+  de la consola (in memorie se va inlocui eventualul newline de la sfarsit
+  cu 0) iar stringul rezultat se va afisa la consola.
+ Ex: "abadc" --> "cdaba"
+
+II.31
+ Program de rezolvare a ecuatiei de grad <=2 cu coeficienti reali (.single):
+  a*x^2 + b*x + c = 0, a,b,c reali
+ Coeficientii se citesc de la consola, rezultatele (solutii sau mesaje) se
+  scriu la consola.
+ Se vor trata toate cazurile: a=b=c=0, a=b=0 si c!=0, a=0 si b!=0, a!=0 si
+  delta<0, a!=0 si delta=0, a!=0 si delta>0.
+
+II.32
+ Program de rezolvare a problemei turnurilor din Hanoi.
+ Enuntul problemei:
+  avem trei pari notati 1, 2, 3;
+  pe parul 1 avem un turn de n discuri cu diametre descrescand de la baza
+   spre varf;
+  trebuie sa mutam turnul de discuri de pe parul 1 pe parul 3, mutand cate
+   un singur disc o data de pe un par pe altul, avand grija sa nu punem
+   niciodata un disc mai mare peste un disc mai mic;
+ Evident, problema se poate reformula echivalent pentru a muta turnul de
+  discuri de pe oricare din parii 1,2,3 pe oricare din parii ramasi, folosind
+  parul ramas ca par intermediar.
+ Rezolvarea problemei (formulata recursiv):
+  notam o mutare sub forma "i -> j" inseamnand ca am mutat discul superior
+   de pe parul i pe parul j;
+  notam h(n,i,j,k) succesiunea mutarilor necesare pentru a rezolva problema
+   mutarii unui turn de n discuri de pe parul i pe parul k, folosind parul j
+   ca par intermediar (i,j,k sunt numerele 1,2,3 intr-o ordine oarecare);
+  atunci: h(1,i,j,k) = "i -> k"
+          h(n,i,j,k) = h(n-1,i,k,j), h(1,i,j,k), h(n-1,j,k,i)  (pentru n>1)
+  (evident, mutarile necesitate de h(n-1,i,k,j) si h(n-1,j,k,i) nu sunt
+  stanjenite de prezenta celui de-al n-lea disc pe parul i, deoarece are
+  diametrul mai mare ca celelalte discuri).
+ Rezolvarea se poate programa usor folosind proceduri recursive, deoarece
+  algoritmul este in esenta recursiv.
+ Programul va emula aceasta recursie gestionand explicit stiva, conform
+  urmatorului algoritm:
+  (0) push 0  (un terminator, ca sa stim cand s-a golit stiva)
+  (a) push nn, 1, 2, 3  (nn este nr. initial de discuri, citit de la consola)
+  (b) daca in varful stivei este 0, stop
+  (c) pop k, j, i, n
+  (d) daca n=1 afisaza la consola "i -> k" (in loc de i, k se vor afisa
+        numerele respective) si salt la (b)
+  (e) push n-1, j, k, i
+      push 1, i, j, k
+      push n-1, i, k, j
+      salt la (b)
+ Toate numerele sunt word.
+
+II.33)
+ In program declar etichetele word: v initializat cu un vector de valori, n
+  initializat cu numarul de elemente din vectorul anterior, x si y
+  initializate cu cate un word, w intializat cu space.
+ Programul creaza o lista simplu inlantuita de elemente alocate dinamic
+  (sbrk) continand elementele vectorului (si adresa nula la sfarsit, ca
+  terminator), apoi insereaza (ca un nou element alocat dinamic) valoarea
+  din y dupa elementul din lista avand valoarea din x, apoi scrie pe rand
+  elementele noii liste in vectorul w (lista se parcurge pana la intalnirea
+  adresei nule), apoi afisaza vectorul w la consola (pe un singur rand, cu
+  elementele separate prin blank).

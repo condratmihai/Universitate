@@ -1,0 +1,89 @@
+#void f1(int *r, int p, int q){
+#  *r=p*p+q*q;
+#}
+
+#int f2r;  /* variabila statica asociata functiei f2 */
+
+#void f2(int p, int q){
+#  f2r=p*p+q*q;
+#}
+#
+#int x,y;
+
+#void main(){
+#  f1(&x,1,2);        /* x devine 5 */
+#  f2(10,20); y=f2r;  /* y devine 500 */
+#}
+
+#Translatarea este:
+
+.data
+  x: .space 4
+  y: .space 4
+.text
+main:
+    # incarc parametrii actuali pentru f1
+  subu $sp,12
+  la $t0,x
+  sw $t0,0($sp)
+  li $t0,1
+  sw $t0,4($sp)
+  li $t0,2
+  sw $t0,8($sp)  # acum stiva este $sp:(adr.x)(1)(2)
+  jal f1
+  addu $sp,12    # descarc parametrii actuali ai lui f1
+    # acum x = 5
+    # incarc parametrii actuali pentru f2
+  subu $sp,8
+  li $t0,10
+  sw $t0,0($sp)
+  li $t0,20
+  sw $t0,4($sp)  # acum stiva este $sp:(10)(20)
+  jal f2
+  addu $sp,8     # descarc parametrii actuali ai lui f2
+  lw $t0,f2r     # recuperez
+  sw $t0,y       #   valoarea returnata
+    # acum y = 500
+li $v0,10
+syscall
+f1:              # la intrarea in apel stiva este $sp:(r)(p)(q)
+  subu $sp,4
+  sw $fp,0($sp)    # salvam $fp
+  addiu $fp,$sp,0  # acum stiva este $sp:$fp:($fp v)(r)(p)(q)
+  lw $t0,8($fp)    # $t0 = p
+  mul $t0,$t0,$t0  # $t0 = p*p
+  subu $sp,4
+  sw $t0,0($sp)    # acum stiva este $sp:(p*p)$fp:($fp v)(r)(p)(q)
+  lw $t0,12($fp)   # $t0 = q
+  mul $t0,$t0,$t0  # $t0 = q*q
+  lw $t1,0($sp)    # $t1 = p*p
+  addu $sp,4       # acum stiva este $sp:$fp:($fp v)(r)(p)(q)
+  add $t1,$t1,$t0  # $t1 = p*p + q*q
+  lw $t0,4($fp)    # $t0 = r
+  sw $t1,0($t0)    # *r = p*p + q*q
+  lw $fp,0($fp)    # restauram $fp
+  addu $sp,4       # descarc cadrul de apel;acum stiva este iar $sp:(r)(p)(q)
+jr $ra
+.data
+  f2r: .space 4
+    # variabila statica asociata functiei f2;
+    # reamintim ca se aloca in continuarea lui y
+.text
+f2:              # la intrarea in apel stiva este $sp:(p)(q)
+  subu $sp,4
+  sw $fp,0($sp)    # salvam $fp
+  addiu $fp,$sp,0  # acum stiva este $sp:$fp:($fp v)(p)(q)
+  lw $t0,4($fp)    # $t0 = p
+  mul $t0,$t0,$t0  # $t0 = p*p
+  subu $sp,4
+  sw $t0,0($sp)    # acum stiva este $sp:(p*p)$fp:($fp v)(p)(q)
+  lw $t0,8($fp)    # $t0 = q
+  mul $t0,$t0,$t0  # $t0 = q*q
+  lw $t1,0($sp)    # $t1 = p*p
+  addu $sp,4       # acum stiva este $sp:$fp:($fp v)(p)(q)
+  add $t1,$t1,$t0  # $t1 = p*p + q*q
+  la $t0,f2r       # $t0 = &f2r
+  sw $t1,0($t0)    # f2r = p*p + q*q
+  lw $fp,0($fp)    # restauram $fp
+  addu $sp,4       # descarc cadrul de apel; acum stiva este iar $sp:(p)(q)
+jr $ra

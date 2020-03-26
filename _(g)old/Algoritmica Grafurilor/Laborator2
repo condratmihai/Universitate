@@ -1,0 +1,94 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+//Dere Popescu - Scribd - Curs 2 - Demonstratii
+
+//asta e implementarea cu bucle
+typedef struct
+{
+    int in;     //extremitate initiala
+    int fin;    //extremitate finala
+    int mult;   //multiplicitatea muchiei (1 pt. o muchie normala,
+                //nr_bucle pt. cate bucle sunt, in cazul celor de grad par
+
+}edge;
+
+int main()
+{
+    int V = 7;
+    int d[] = {9, 5, 10, 7, 4, 7, 2};
+
+    vector <edge> E;
+
+    int suma = 0;
+    for (int i = 0; i < V; i++)
+    {
+        suma = suma + d[i];
+    }
+
+    //Nu este posibila construirea unui graf cu nr. impar al gradelor
+    if (suma%2 == 1)
+    {
+        cout<<"Nu mere'.";
+        return 0;
+    }
+
+    int nr_bucle;
+    int muchie_libera;
+    int nod_precedent = 0;
+    edge muchie;
+
+    for(int i = 0; i < V; i++)
+    {
+        nr_bucle = d[i]/2;
+        muchie_libera = d[i]%2;
+
+        //Adauga buclele in lista
+
+            muchie.in = muchie.fin = i;
+            muchie.mult = nr_bucle;
+
+            E.push_back(muchie);
+
+        //Cazul in care o muchie nu face parte dintr-o bucla
+        //Pastreaza o muchie de la acest nod si o ataseaza la urmatorul nod cu o muchie libera
+        if((muchie_libera) == 1 && (nod_precedent == -1)) nod_precedent = i;
+
+        if((muchie_libera == 1) && (nod_precedent != -1) && (nod_precedent != i))
+        {
+            muchie.in = nod_precedent;
+            muchie.fin = i;
+            muchie.mult = 1;
+
+            E.push_back(muchie);
+
+            nod_precedent = -1;
+        }
+
+
+    }
+
+    //Afisare lista muchii + multiplicitate
+    for(int i = 0; i < E.size(); i++)
+    {
+        cout<<E[i].in<<" "<<E[i].fin<<" "<<E[i].mult<<'\n';
+    }
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+    //PENTRU CONSTRUIREA GRAFULUI FARA BUCLE
+    //Utilizam graful de mai sus si eliminam buclele
+
+    //if(2 * grad(maxim dintre noduri) > suma_gradelor) => Nu se poate construi.
+
+
+    return 0;
+}
+
+
+
+
+
+

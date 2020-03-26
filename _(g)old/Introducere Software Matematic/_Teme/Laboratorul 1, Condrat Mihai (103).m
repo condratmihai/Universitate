@@ -1,0 +1,77 @@
+%Mihai Condrat, Gr. 103, Laboratorul#01, EX#04 , IntroSoftMat.
+
+AB = 8;
+BC = CD = 5 * sqrt(2);
+AD = 6;
+BAD = pi/2;
+
+
+BD = sqrt(AD^2 + AB^2); %Th. Pitagora
+
+ABD = asin((AD * sin(BAD))/BD); %Th. Sinus. în triunghiul BAD
+
+ADB = pi - (BAD + ABD); %Suma unghiurilor în triunghi este pi
+
+
+%În triunghiul BCD, din Th. Cosin.:
+
+CBD = acos ((BD^2 + BC^2 - CD^2)/(2 * BD * BC));
+
+BCD = acos ((BC^2 + CD^2 - BD^2)/(2 * BC * CD));
+
+BDC = acos ((BD^2 + CD^2 - BC^2)/(2 * BD * CD));
+
+
+%Unghiurile triunghiului ca sume de unghiuri componente
+
+ADC = ADB + BDC;
+
+ABC = ABD + CBD;
+
+AC = sqrt(AD^2 + CD^2 - 2 * AD * CD * cos(ADC)); %Th. Cosin. în triunghiul ADC
+
+%Pentru (a), diagonalele sunt:
+
+BD
+AC
+
+%Pentru (b), unghiurile sunt:
+
+BAD
+ABC
+BCD
+ADC
+
+%Pentru (c):
+%Condiţia de a fi convex: niciun unghi nu trebuie să fie mai mare de pi radiani.
+if ((BAD > pi) && (ABC > pi) && (BCD > pi) && (ADC > pi)) 
+    disp('Patrulaterul ABCD nu este convex.')
+else disp('Patrulaterul ABCD este convex.')
+end
+
+
+%Pentru (d):
+if (abs(BAD + BCD - pi) < eps)
+    disp('Patrulaterul ABCD este inscriptibil.')
+    S = (AD * BC)/2; %Suprafaţa triunghiului ABD
+    R = (AB * AD * BD)/(4 * S); %Raza cercului circumnscris triunghiului (şi, implicit, patrulaterului)
+    R
+else disp('Patrulaterul ABCD nu este inscriptibil.')
+end
+
+%Pentru (e):
+if (abs((AB + CD) - (AD + BC)) < eps)
+    disp('Patrulaterul ABCD admite cerc înscris.')
+    p = (AB + AD + BD)/2;
+    r = S/p; %Raza cercului înscris triunghiului (şi, implicit, patrulaterului)
+    r
+else disp('Patrulaterul ABCD nu admite cerc înscris.')
+end
+
+%Pentru (f):
+P = AB + BC + CD + AD; %Perimetru
+p = P/2; %Semiperimetru
+A = sqrt((p - AB) * (p - BC) * (p - CD) * (p - AD)); %Brahmagupta
+
+P
+A

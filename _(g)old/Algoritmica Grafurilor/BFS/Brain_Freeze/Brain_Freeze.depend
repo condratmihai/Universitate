@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1559219263 source:c:\users\condr\downloads\to-do\ag\bfs\brain_freeze\main.cpp
+	<iostream>
+	<fstream>
+	<queue>
+

@@ -1,0 +1,487 @@
+1) Instructiuni de shiftare si rotire(se ruleaza pas cu pas, urmarindu-se registrii):
+~~~~~~~
+
+.data
+.text
+main:
+li $t1,11         # pe biti $t1: 0000 0000 0000 0000 0000 0000 0000 1011
+                  # adica 0x0000000b
+sll $t2, $t1, 2   # $t2: 0000 0000 0000 0000 0000 0000 0010 1100 (0x0000002c)
+sll $t2, $t1, 28  # $t2: 1011 0000 0000 0000 0000 0000 0000 0000 (0xb0000000)
+sll $t2, $t1, 29  # $t2: 0110 0000 0000 0000 0000 0000 0000 0000 (0x60000000)
+sll $t2, $t1, 31  # $t2: 1000 0000 0000 0000 0000 0000 0000 0000 (0x80000000)
+li $t1,0x50000000 # pe biti $t1: 0101 0000 0000 0000 0000 0000 0000 0000
+                  # bitul de semn b31 este 0
+srl $t2, $t1, 2   # $t2: 0001 0100 0000 0000 0000 0000 0000 0000 (0x14000000)
+sra $t2, $t1, 2   # $t2: 0001 0100 0000 0000 0000 0000 0000 0000 (0x14000000)
+ # deci daca b31 este 0, rezultatul este acelasi la srl, sra
+li $t1,0xb0000000 # pe biti $t1: 1011 0000 0000 0000 0000 0000 0000 0000
+                  # bitul de semn b31 este 1
+srl $t2, $t1, 2   # $t2: 0010 1100 0000 0000 0000 0000 0000 0000 (0x2c000000)
+sra $t2, $t1, 2   # $t2: 1110 1100 0000 0000 0000 0000 0000 0000 (0xec000000)
+ # deci daca b31 este 1, rezultatul difera la srl, sra
+li $t1,11         # $t1: 0000 0000 0000 0000 0000 0000 0000 1011 (0x0000000b)
+li $t0,31
+sll $t2, $t1, $t0 # $t2: 1000 0000 0000 0000 0000 0000 0000 0000 (0x80000000)
+li $t0,32
+sll $t2, $t1, $t0 # $t2: 0000 0000 0000 0000 0000 0000 0000 1011 (0x0000000b)
+li $t0,67   # 67 = 2 * 32 + 3
+sll $t2, $t1, $t0 # $t2: 0000 0000 0000 0000 0000 0000 0101 1000 (0x00000058)
+li $t0,-1   # -1 = (-1) * 32 + 31
+sll $t2, $t1, $t0 # $t2: 1000 0000 0000 0000 0000 0000 0000 0000 (0x80000000)
+li $t0,-32
+sll $t2, $t1, $t0 # $t2: 0000 0000 0000 0000 0000 0000 0000 1011 (0x0000000b)
+li $t0,-67  # -67 = (-3) * 32 + 29
+sll $t2, $t1, $t0 # $t2: 0110 0000 0000 0000 0000 0000 0000 0000 (0x60000000)
+ # constatam ca in cazul shiftarilor variabile nr. de pozitii cu care se
+ #  shifteaza poate fi in afara intervalului 0, ..., 31, si se va shifta
+ #  cu acest nr. modulo 32 (restul considerat din 0, ..., 31);
+ # notam ca shiftarea cu 0, 32 sau -32 lasa numarul pe loc (la fel shiftarea
+ #  cu orice multiplu intreg de 32);
+li $t1,0xb0000000 # $t1: 1011 0000 0000 0000 0000 0000 0000 0000
+li $t0,30
+sra $t2, $t1, $t0 # $t2: 1111 1111 1111 1111 1111 1111 1111 1110 (0xfffffffe)
+li $t0,31
+sra $t2, $t1, $t0 # $t2: 1111 1111 1111 1111 1111 1111 1111 1111 (0xffffffff)
+li $t0,32
+sra $t2, $t1, $t0 # $t2: 1011 0000 0000 0000 0000 0000 0000 0000 (0xb0000000)
+li $t0,67   # 67 = 2 * 32 + 3
+sra $t2, $t1, $t0 # $t2: 1111 0110 0000 0000 0000 0000 0000 0000 (0xf6000000)
+li $t0,-1   # -1 = (-1) * 32 + 31
+sra $t2, $t1, $t0 # $t2: 1111 1111 1111 1111 1111 1111 1111 1111 (0xffffffff)
+li $t0,-32
+sra $t2, $t1, $t0 # $t2: 1011 0000 0000 0000 0000 0000 0000 0000 (0xb0000000)
+li $t0,-67  # -67 = (-3) * 32 + 29
+sra $t2, $t1, $t0 # $t2: 1111 1111 1111 1111 1111 1111 1111 1101 (0xfffffffd)
+ # deci in cazul shiftarii aritmetice variabile cu o valoare in afara
+ #  intervalului 0, ..., 31 comportamentul este similar, dar tinem cont
+ #  ca acum spatiul gol creat in stanga se umple cu bitul de semn;
+li $t1,0x0000000b # $t1: 0000 0000 0000 0000 0000 0000 0000 1011
+li $t0,29
+rol $t2, $t1, $t0 # $t2: 0110 0000 0000 0000 0000 0000 0000 0001 (0x60000001)
+li $t0,30
+rol $t2, $t1, $t0 # $t2: 1100 0000 0000 0000 0000 0000 0000 0010 (0xc0000002)
+li $t0,32
+rol $t2, $t1, $t0 # $t2: 0000 0000 0000 0000 0000 0000 0000 1011 (0x0000000b)
+li $t0,67   # 67 = 2 * 32 + 3
+rol $t2, $t1, $t0 # $t2: 0000 0000 0000 0000 0000 0000 0101 1000 (0x00000058)
+li $t0,-1   # -1 = (-1) * 32 + 31
+rol $t2, $t1, $t0 # $t2: 1000 0000 0000 0000 0000 0000 0000 0101 (0x80000005)
+li $t0,-67  # -67 = (-3) * 32 + 29
+rol $t2, $t1, $t0 # $t2: 0110 0000 0000 0000 0000 0000 0000 0001 (0x60000001)
+li $t1,0xb0000000 # $t1: 1011 0000 0000 0000 0000 0000 0000 0000
+li $t0,30
+ror $t2, $t1, $t0 # $t2: 1100 0000 0000 0000 0000 0000 0000 0010 (0xc0000002)
+li $t0,31
+ror $t2, $t1, $t0 # $t2: 0110 0000 0000 0000 0000 0000 0000 0001 (0x60000001)
+li $t0,32
+ror $t2, $t1, $t0 # $t2: 1011 0000 0000 0000 0000 0000 0000 0000 (0xb0000000)
+li $t0,67   # 67 = 2 * 32 + 3
+ror $t2, $t1, $t0 # $t2: 0001 0110 0000 0000 0000 0000 0000 0000 (0x16000000)
+li $t0,-1   # -1 = (-1) * 32 + 31
+ror $t2, $t1, $t0 # $t2: 0110 0000 0000 0000 0000 0000 0000 0001 (0x60000001)
+li $t0,-32
+ror $t2, $t1, $t0 # $t2: 1011 0000 0000 0000 0000 0000 0000 0000 (0xb0000000)
+li $t0,-67  # -67 = (-3) * 32 + 29
+ror $t2, $t1, $t0 # $t2: 1000 0000 0000 0000 0000 0000 0000 0101 (0x80000005)
+ # deci comportamentul la rotiri este ca la shiftarile logice, dar bitii ce
+ #  ies din word printr-o parte intra in el in aceeasi ordine prin cealalta
+ #  parte; in particular notam ca rotirile cu multipli intregi de 32 lasa
+ #  numarul pe loc;
+li $v0,10
+syscall
+##########
+
+
+2) Instructiuni logice (se ruleaza pas cu pas, urmarindu-se registrii):
+~~~~~~~
+
+.data
+.text
+main:
+li $t0,0x00000030  # pe biti $t0: 0000 0000 0000 0000 0000 0000 0011 0000
+li $t1,0x00000050  # pe biti $t1: 0000 0000 0000 0000 0000 0000 0101 0000
+
+and $t2, $t0, $t1  # pe biti $t2: 0000 0000 0000 0000 0000 0000 0001 0000
+                   #  adica 0x00000010
+or  $t2, $t0, $t1  # pe biti $t2: 0000 0000 0000 0000 0000 0000 0111 0000
+                   #  adica 0x00000070
+xor $t2, $t0, $t1  # pe biti $t2: 0000 0000 0000 0000 0000 0000 0110 0000
+                   #  adica 0x00000060
+andi $t2, $t1, 176 # pe biti 176: 0000 0000 0000 0000 0000 0000 1011 0000
+                   # rezulta $t2: 0000 0000 0000 0000 0000 0000 0001 0000
+                   #    adica 0x00000010
+ori  $t2, $t1, 176 # pe biti 176: 0000 0000 0000 0000 0000 0000 1011 0000
+                   # rezulta $t2: 0000 0000 0000 0000 0000 0000 1111 0000
+                   #    adica 0x000000f0
+xori $t2, $t1, 176 # pe biti 176: 0000 0000 0000 0000 0000 0000 1011 0000
+                   # rezulta $t2: 0000 0000 0000 0000 0000 0000 1110 0000
+                   #    adica 0x000000e0
+not $t2, $t1       # pe biti $t2: 1111 1111 1111 1111 1111 1111 1010 1111
+                   #  adica 0xffffffaf
+nor $t2, $t1, $t0  # pe biti $t2: 1111 1111 1111 1111 1111 1111 1000 1111
+                   #  adica 0xffffff8f
+## aratam cum putem folosi or, ori la setarea la 1 a unor biti;
+## de exemplu vrem sa setam bitii b4, b5 din $t1;
+##  atunci facem ori intre $t1 si un halfword care are toti bitii 0 in afara
+##  afara de b4 si b5 unde are 1: 0000 0000 0011 0000 adica 0x0030
+ori $t2, $t1, 0x0030       # $t2: 0000 0000 0000 0000 0000 0000 0111 0000
+                           # adica 0x00000070
+ # metoda nu merge decat daca pozitiile sunt de la 0 la 15;
+ # pentru a seta biti de pe pozitii mai mari (pana la 32) sau in cazul cand
+ #  pozitiile sunt determinate din calcule, putem proceda astfel:
+li $s0, 4                  #
+li $s1, 17                 # pozitiile unde setam: 4, 17
+li $s2, 0x1
+sll $s2, $s2, $s0          # $s2: 0000 0000 0000 0000 0000 0000 0001 0000
+                           #  are setat b4
+move $s3, $s2              # $s3: 0000 0000 0000 0000 0000 0000 0001 0000
+li $s2, 0x1
+sll $s2, $s2, $s1          # $s2: 0000 0000 0000 0010 0000 0000 0000 0000
+                           #  are setat b17
+or $s3, $s3, $s2           # $s3: 0000 0000 0000 0010 0000 0000 0001 0000
+                           #  deci are setati exacti bitii ce trebuie setati
+                           #  in $t1
+or  $t2, $t1, $s3          # $t2: 0000 0000 0000 0010 0000 0000 0101 0000
+                           # adica 0x00020050
+## aratam cum putem folosi and, andi la anularea unor biti;
+## de exemplu vrem sa anulam bitii b4, b5 din $t1;
+##  atunci facem andi intre $t1 si un halfword care are toti bitii 1 in afara
+##  afara de b4 si b5 unde are 0: 1111 1111 1100 1111 adica 0xffcf
+andi $t2, $t1, 0xffcf      # $t2: 0000 0000 0000 0000 0000 0000 0100 0000
+                           # adica 0x00000040
+ # metoda nu merge decat daca pozitiile sunt de la 0 la 15;
+ # pentru a seta biti de pe pozitii mai mari (pana la 32) sau in cazul cand
+ #  pozitiile sunt determinate din calcule, putem proceda astfel (similar
+ #  ca la setare, doar ca masca se neaga in prealabil si se face and, nu or):
+li $s0, 4                  #
+li $s1, 17                 # pozitiile unde anulam: 4, 17
+li $s2, 0x1
+sll $s2, $s2, $s0          # $s2: 0000 0000 0000 0000 0000 0000 0001 0000
+                           #  are setat b4
+move $s3, $s2              # $s3: 0000 0000 0000 0000 0000 0000 0001 0000
+li $s2, 0x1
+sll $s2, $s2, $s1          # $s2: 0000 0000 0000 0010 0000 0000 0000 0000
+                           #  are setat b17
+or $s3, $s3, $s2           # $s3: 0000 0000 0000 0010 0000 0000 0001 0000
+                           #  deci are setati exacti bitii ce trebuie anulati
+                           #  in $t1
+not $s3, $s3               # $s3: 1111 1111 1111 1101 1111 1111 1110 1111
+                           #  deci este exact masca cu care trebuie facut and
+and  $t2, $t1, $s3         # $t2: 0000 0000 0000 0000 0000 0000 0100 0000
+                           # adica 0x00000040
+li $v0,10
+syscall
+##########
+
+3)Exemplu ce evidentiaza diverse proprietati legate de inmultiri/impartiri
+ (se ruleaza pas cu pas urmarindu-se continutul registrilor $t0, $t1,
+         lo, hi):
+~~~~~~~
+
+.text
+main:
+li $t0,0x80000123
+li $t1,0x00000002
+multu $t0,$t1
+# acum hi=0x00000001, lo=0x00000246
+# intr-adevar, 0x80000123 * 2 = 0x0000000100000246 (inm. de nr. naturale)
+# partea hi este semnificativa (i.e. nenula)
+##########
+li $t0,0x80000123
+li $t1,0x00000001
+multu $t0,$t1
+# acum hi=0x00000000, lo=0x80000123
+# intr-adevar, 0x80000123 * 1 = 0x0000000080000123 (inm. de nr. naturale)
+# partea hi este nesemnificativa (i.e. nula)
+##########
+li $t0,0x80000000  # ca nr. intreg, $t0 = -2^31
+li $t1,0x00000001  # ca nr. intreg, $t1 = 1
+mult $t0,$t1
+# acum hi=0xffffffff, lo=0x80000000
+# intr-adevar, -2^31 * 1 = -2^31, care se repr. pe 2 word: 0xffffffff80000000
+# partea hi este nesemnificativa (i.e. rezultatul a incaput in partea low),
+#   dar la inmultirea cu semn se propaga bitul de semn, care aici e 1;
+#   daca faceam "multu" rezulta hi=0x00000000, lo=0x80000000
+##########
+li $t0,0x80000000  # ca nr. intreg, $t0 = -2^31
+li $t1,0x00000002  # ca nr. intreg, $t1 = 2
+mult $t0,$t1
+# acum hi=0xffffffff, lo=0x00000000
+# intr-adevar, -2^31 * 2 = -2^32, care se repr. pe 2 word: 0xffffffff00000000
+# partea hi este semnificativa (i.e. este parte a rezultatului, deoarece
+#   rezultatul nu a incaput doar in partea low), deci 0xffffffff din hi
+#   nu este extensia de semn a bitului b31 din lo; daca faceam "multu"
+#   rezulta hi=0x00000001, lo=0x00000000 (adica 2^31 * 2 = 2^32)
+##########
+li $t0,0x78000000  # ca nr. intreg, $t0 = 2^30 + 2^29 + 2^28 + 2^27
+li $t1,0x00000002  # ca nr. intreg, $t1 = 2
+mult $t0,$t1
+# acum hi=0x00000000, lo=0xf0000000
+# intr-adevar, (2^30 + 2^29 + 2^28 + 2^27) * 2 = (2^31 + 2^30 + 2^29 + 2^28),
+#   care se repr. pe 2 word: 0x00000000f0000000
+# partea hi este semnificativa (i.e. parte a rezultatului, chiar daca e nula,
+#   deoarece rezultatul este un nr. pozitiv care nu se poate reprezenta ca
+#   INTREG (cu semn) doar in lo, intrucat nu este intre -2^31, ..., 2^31-1);
+#   astfel, desi bitul b31 din lo este 1, el nu s-a propagat in hi
+##########
+li $t0,0x80000000  # ca nr. natural, $t0 = 2^31
+li $t1,0x00000002  # ca nr. natural, $t1 = 2
+### mulou $t2,$t0,$t1
+# genereaza exceptie, deoarece prod. este 2^32 > 2^32-1, cel mai mare
+#   nr. natural (deci fara semn) reprezentabil pe 1 word
+##########
+li $t0,0x40000000  # ca nr. intreg, $t0 = 2^30
+li $t1,0x00000002  # ca nr. intreg, $t1 = 2
+### mulo $t2,$t0,$t1
+# genereaza exceptie, deoarece produsul este 2^31 > 2^31-1, cel mai mare
+#   nr. inreg (deci cu semn) reprezentabil pe 1 word
+##########
+li $t0,0xbfffffff  # ca nr. intreg, $t0 = -2^30-1
+li $t1,0x00000002  # ca nr. intreg, $t1 = 2
+### mulo $t2,$t0,$t1
+# genereaza exceptie, deoarece produsul este -2^31-2 < -2^31, cel mai mic
+#   nr. inreg (deci cu semn) reprezentabil pe 1 word
+##########
+li $t0,0x00000041  # ca nr. intreg sau ca nr. natural, $t0=65
+li $t1,0x00000002  # ca nr. intreg sau ca nr. natural, $t1=2
+div $t0,$t1
+# obtinem lo=0x00000020 (i.e. catul = 32), hi=0x00000001 (i.e. retsul = 1)
+divu $t0,$t1
+# obtinem lo=0x00000020 (i.e. catul = 32), hi=0x00000001 (i.e. retsul = 1)
+##########
+li $t0,0x00000041  # ca nr. intreg, $t0=65
+li $t1,0xfffffffe  # ca nr. intreg, $t1=-2
+div $t0,$t1
+# obtinem lo=0xffffffe0 (i.e. catul = -32), hi=0x00000001 (i.e. retsul = 1)
+##########
+li $t0,0x00000041  # ca nr. natural, $t0=65
+li $t1,0xfffffffe  # ca nr. natural, $t1=2^32-2
+divu $t0,$t1
+# obtinem lo=0x00000000 (i.e. catul = 0), hi=0x00000041 (i.e. retsul = 65)
+##########
+li $t0,0x80000000  # ca nr. intreg, $t0=-2^31
+li $t1,0xffffffff  # ca nr. intreg, $t1=-1
+div $t0,$t1
+# ar trebui sa genereza exceptie, deoarece catul este 2^31 si nu incape ca
+#    intreg cu semn in lo (ar trebui sa fie < 2^31-1);
+# totusi nu se genereaza exceptie, lo,hi raman nemodificate si se merge mai
+#    departe
+##########
+li $t0,0x80000000  # ca nr. intreg, $t0=-2^31
+li $t1,0xffffffff  # ca nr. intreg, $t1=-1
+divu $t0,$t1
+# ca mai sus, nu se genereaza exceptie, lo,hi raman nemodificate si se merge
+#    mai departe
+##########
+li $v0,10
+syscall
+##########
+
+4) implementarea numerelor lungi; daca dorim sa lucram cu numere care
+~~~~~~~~  nu incap intr-un word, putem stoca intr-un vector de word cifrele
+          sale in baza 2^32, iar algoritmii de calcul cu ele vor lucra pe
+          aceste reprezentari in baza 2^32;
+Ilustram ideea de lucru pentru adunarea a doua numere naturale (intregi fara
+ semn) de 2 word:
+
+.data
+x: .word 0xffffffff, 0xffffffff # primul nr. = 2^64-1 reprezentat pe 2 word
+y: .word 0x00000001, 0xffffffff # al 2-lea nr. = 2^64-2^32+1 rep. pe 2 word
+z: .word 0,0,0                  # aici vom pune suma (are max. 3 word)
+ # numere sunt stocate in ordine little-endian
+ # suma va fi 0x00000000, 0xffffffff, 0x00000001
+ # adica numarul 0x00000001ffffffff00000000
+n: .word 2       # dimensiunea vectorilor (a numerelor in word-uri)
+i: .space 4      # indice
+.text
+main:
+ li $t7,0  # carry
+ li $t0,0
+ sw $t0,i  # i=0 (adun de la stanga la dreapta, conform little-endian)
+inceput:
+ lw $t0,i
+ lw $t1,n
+ bge $t0,$t1,sfarsit
+  sll $t0,$t0,2  # acum $t0 este offsetul in octeti al word-ului al i-lea
+  lw $t1,x($t0)  # $t1=x[i]
+  lw $t2,y($t0)  # $t2=y[i]
+  addu $t3,$t7,$t1  # $t3=carry vechi + x[i]
+  sltu $t4,$t3,$t1  # daca am carry partial atunci $t4=0, altfel $t4=1
+  move $t7,$t4      #   (oricum, carry-ul partial este 0 sau 1 adica $t4)
+  addu $t3,$t3,$t2  # adun la $t3 si pe y[i]
+  sltu $t4,$t3,$t2  # stochez noul carry partial in $t4
+  addu $t7,$t7,$t4  # acum $t7 contine carry-ul total al pozitiei i
+  sw $t3,z($t0)  # z[i]=$t3=(x[i]+y[i]+carry vechi)mod 2^32
+  lw $t0,i
+  addiu $t0,$t0,1
+  sw $t0,i       # i=i+1
+  b inceput
+ sfarsit:
+  beqz $t7,final # daca n-am carry la ultima pozitie, am terminat
+   sll $t0,$t0,2
+   sw $t7,z($t0)
+  final:
+li $v0,10
+syscall
+##########
+
+Explicatii:
+- la pozitia i (=0,..,n-1) se aduna x[i]+y[i]+carry vechi si se obtine z[i]
+ si un carry nou (transmis la pozitia i+1); carry-ul initial este 0, iar daca
+ am un carry nenul la pozitia i=1, el se salveaza ca z[n] (altfel z[n]=0);
+- se demonstreaza inductiv ca pentru orice i carry-ul generat la pozitia i
+ (il notam c(i)) nu poate fi decat 0,1; notam carry-ul initial cu c(-1);
+  evident, c(-1)=0;
+  presupunand 0<=c(i-1)<=1, 0<=i<=n-1, si demonstram ca 0<=c(i)<=1:
+    cum 0<=x[i],y[i]<=2^32-1, rezulta 0<=x[i]+y[i]+c(i-1)<=2^33-1;
+    astfel, cum c(i)=(x[i]+y[i]+c(i-1)) div 2^32 (catul intreg), rezulta
+      0<=c(i)<=1;
+  asadar pentru orice 0<=i<=n-1 avem 0<=c(i)<=1;
+  in particular z[n], care este doar c(n-1), va fi 0 sau 1;
+- intrucat la pozitai i se aduna c(i-1)+x[i]+y[i], valoarea 1 a lui c(i)
+ poate aparea fie in urma insumarii c(i-1)+x[i], fie in urma insumarii
+ ulterioare si a lui y[i]; in program $t7 retine c(i) iar $t4 colecteaza
+ cele doua carry partiale si le insumeaza in $t7;
+  se poate demonstra (exercitiu) ca ambele carry partiale sunt 0 sau 1 si
+ ca nu pot fi ambele 1, dar nu am exploatat asta in program;
+- o dificultate care apare este cum detectam aparitia unui carry la adunarea
+ a doi word (suma se face mod 2^32 si nu am carry flag ca la procesoarele
+ intel care sa retina ca am avut depasire); un artificiu este compararea
+ rezultatului cu unul din operanzi; mai exact:
+  daca 0<=a,b<=2^32-1 sunt doua numere naturale, atunci 0<=a+b<=2^33-2;
+  cazul cand suma genereaza carry este cel cand 2^32<=a+b<=2^33-1; in acest
+    caz rezultatul obtinut la efectuarea instructiunii "addu" (adica
+    (a+b)mod 2^32) este c=a+b-2^32; atunci va rezulta c<a,b;
+  intr-adevar, daca c>=a atunci a+b-2^32>=a, adica b>=2^32 contradictie;
+    la fel rezulta c<b;
+  pe de alta parte, daca suma nu genereaza carry, atunci inseamna ca am avut
+    0<=a+b<=2^32-1; in acest caz rezultatul obtinut la efectuarea "addu"
+    (adica (a+b)mod 2^32) este c=a+b si evident avem c>=a,b;
+ in concluzie: a+b genereza carry daca si numai daca "a addu b"<a (sau <b);
+ pe acest principiu se bazeaza detectarea carry-urilor partiale din program;
+  de exemplu secventa:
+
+  addu $t3,$t7,$t1  # $t3=carry vechi + x[i]
+  sltu $t4,$t3,$t1  # daca am carry partial atunci $t4=0, altfel $t4=1
+
+  face "addu" intre $t7 si $t1 (adica intre c(i-1) si x[i]) si pune
+  rezultatul in $t3, apoi pune rezultatul comparatiei $t3<$t1 (sub forma
+  0=fals, 1=adevarat) in $t4; avand in vedere cele de mai sus, vom avea
+  $t4=1 daca si numai daca avem carry partial la adunarea lui c(i-1) si x[i]
+  si, mai mult, valoarea lui $t4 este chiar carry-ul partial (care nu poate
+  fi decat 0 sau 1);
+
+Mai rapid (fara a mai incarca mereu i si n din memorie ci stocand direct in
+ registri offset-urile in octeti), programul anterior se poate scrie:
+
+.data
+x: .word 0xffffffff, 0xffffffff
+y: .word 0x00000001, 0xffffffff
+z: .word 0,0,0
+ # numere sunt stocate in ordine little-endian
+ # suma va fi 0x00000000, 0xffffffff, 0x00000001
+ # adica numarul 0x00000001ffffffff00000000
+.text
+main:
+ li $t7,0  # carry
+ li $t0,0  # offset-ul in octeti al word-ului curent
+ li $t6,8  # numarul componentelor word * 4 (offsetul maxim)
+inceput:
+ bge $t0,$t6,sfarsit
+  lw $t1,x($t0)   # $t1=x[i]
+  lw $t2,y($t0)   # $t2=y[i]
+  addu $t3,$t7,$t1  # $t3=carry vechi + x[i]
+  sltu $t4,$t3,$t1  # daca am carry partial atunci $t4=0, altfel $t4=1
+  move $t7,$t4      #   (oricum, carry-ul partial este 0 sau 1 adica $t4)
+  addu $t3,$t3,$t2  # adun la $t3 si pe y[i]
+  sltu $t4,$t3,$t2  # stochez noul carry partial in $t4
+  addu $t7,$t7,$t4  # acum $t7 contine carry-ul total al pozitiei i
+  sw $t3,z($t0)   # z[i]=$t3=(x[i]+y[i]+carry vechi)mod 2^32
+  addiu $t0,$t0,4 # i=i+4
+  b inceput
+ sfarsit:
+  beqz $t7,final # daca n-am carry la ultima pozitie, am terminat
+   sw $t7,z($t0)
+  final:
+li $v0,10
+syscall
+##########
+
+Am vazut mai sus ca la adunarea numerelor naturale A+B (intregi fara semn)
+ putem detecta depasirea dupa criteriul suma < B sau suma < B.
+In cazul operatiilor cu numere intregi (cu semn), putem detecta depasirea
+ dupa urmatoarele criterii (depasire avem cand rezultatul nu este in
+ intervalul -2^31, ..., 2^31-1):
+
+ operatie (cu semn)    operand A    operand B    rezultat indicand depasire
+ ------------------    ---------    ---------    --------------------------
+    A+B                  >= 0         >= 0                  < 0
+    A+B                   < 0          < 0                 >= 0
+    A-B                  >= 0          < 0                  < 0
+    A-B                   < 0         >= 0                 >= 0
+
+Evident, aceste metode se pot folosi doar atunci cand operatia este efectuata
+cu instructiuni care nu genereaza exceptii in caz de depasire (ci doar produc
+un rezultat alterat).
+
+
+5)inmultirea unui numar natural lung (multi word) cu un numar natural
+~~~~~~~~  de un word:
+
+.data
+x: .word 0x20000000, 0x1e1e1e1e # ca numar x = 0x1e1e1e1e20000000
+y: .word 0x00000011             # ca numar y = 0x11 (adica 3)
+z: .word 0,0,0                  # aici va fi produsul (putea fi si .space 12)
+ # numere sunt stocate in ordine little-endian
+ # produsul va fi 0x20000000, 0x00000000, 0x00000002
+ # adica numarul 0x000000020000000020000000
+.text
+main:
+ li $t0,0   # offset-ul word-ului curent
+ li $t6,8   # numarul de octeti ai deinmultitului
+ li $t7,0   # carry
+ lw $t2,y   # inmultitorul
+inceput:
+ bge $t0,$t6,sfarsit
+  lw $t1,x($t0)  # word-ul curent din deinmultit
+  multu $t1,$t2  # (hi,lo) <- $t1 * $t2
+  mflo $t3       # daca n-am avea carry, lo (i.e. $t3) s-ar pune in z($t0)
+  mfhi $t4       # daca n-am avea carry, hi (i.e. $t4) ar fi noul carry
+  addu $t3,$t3,$t7  # adunam la $t3 vechiul carry
+  sw $t3,z($t0)     # $t3 da word-ul curent din z
+  slt $t5,$t3,$t7   # aflam (ca la prog. precendent) carry-ul partial
+  addu $t7,$t4,$t5  # noul carry = carry-ul partial + vechiul hi
+                    #  (se demonstraza ca nu putem avea si aici carry)
+  addu $t0,$t0,4
+  b inceput
+ sfarsit:
+  beqz $t7,final
+  sw $t7,z($t0)
+final:
+li $v0,10
+syscall
+##########
+
+Explicatii:
+  daca n este nr. de word-uri ale deinmultitului x si 0<=i<=n-1 este word-ul
+ curent, daca notam c(i) carry-ul generat la pozitia i si c(-1) carry-ul
+ initial (evident 0), avem z[i] = (x[i]*y + c(i-1)) mod 2^32 si
+ c(i) = (x[i]*y + c(i-1)) div 2^32; in final z[n] va primi valoarea c(n-1);
+  in program noi calculam succesiv:
+  $t3 = x[i]*y mod 2^32
+  $t4 = x[i]*y div 2^32
+  z[i]= (x[i]*y mod 2^32 + c(i-1)) mod 2^32
+  $t5 = (x[i]*y mod 2^32 + c(i-1)) div 2^32
+  c(i)= $t4 + $t5 = x[i]*y div 2^32 + (x[i]*y mod 2^32 + c(i-1)) div 2^32
+    (iar aici am spus ca nu putem avea depasire)
+ avand in vedere formulele (a+b) mod k = (a mod k + b) mod k si
+  (a+b) div k = a div k + ((a mod k) + b) div k (a,b,k naturale, k>0)
+  rezulta ca z[i] este corect calculat; de asemenea va rezulta ca c(i) este
+  corect calculat daca demonstram ca adunarea $t4+$t5 nu avem depasire (deci
+  toata suma incape in $t7); acest lucru rezulta din faptul ca avand
+  0<=x[i],y<=2^32-1, avem 0<=x[i]*y<=2^64-2^33+1, deci
+  0<=x[i]*y div 2^32<=2^32-2, deci 0<=$t4<=2^32-2, iar valoarea lui $t5 nu
+  poate fi decat 0,1, intrucat este depasirea rezultata dintr-un "addu" (a se
+  vedea explicatiile de la programul anterior), deci in total suma $t4+$t5 nu
+  depaseste 2^32-1.
